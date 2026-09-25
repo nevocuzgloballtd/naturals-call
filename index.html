@@ -23,7 +23,7 @@
       </nav>
       <div class="sidebar-bottom">
         <div class="provider-card"><span class="dot"></span><div><strong>Provider</strong><small>Not connected</small></div></div>
-        <div class="profile"><div class="avatar">U</div><div><strong>Workspace</strong><small>Local preview</small></div></div>
+        <button class="profile" id="profile-btn" type="button"><div class="avatar" id="profile-avatar">U</div><div><strong id="profile-name">Workspace</strong><small id="profile-email">Signed out</small></div></button>
       </div>
     </aside>
 
@@ -93,7 +93,7 @@
           <div class="page-head"><p class="eyebrow">BILLING</p><h1>Usage & billing</h1><p>Provider billing will be connected when the backend is ready.</p></div>
           <div class="billing-card"><div><span>Provider balance</span><strong>—</strong><small>Not connected</small></div><button class="secondary" id="connect-provider">Connect provider</button></div>
           <div class="info-banner"><b>Billing is not connected yet.</b><span>No provider balance, recharge amount, or transaction value is hardcoded into this interface.</span></div>
-          <div class="panel"><div class="panel-head"><div><h3>Transactions</h3><p>Provider transactions will appear here.</p></div></div><div class="empty"><div class="empty-icon">◉</div><h3>No transactions yet</h3><p>Connect the backend to load real billing information.</p></div></div>
+          <div class="panel"><div class="panel-head"><div><h3>Transactions</h3><p>Real transactions from Supabase will appear here.</p></div></div><div id="transaction-list" class="transaction-list"></div></div>
         </div>
 
         <!-- SETTINGS -->
@@ -118,6 +118,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
