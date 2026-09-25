@@ -1,107 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CallFlow — Calling Workspace</title><link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CallFlow calling workspace">
+  <title>CallFlow</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="brand-mark">C</div><div><strong>CallFlow</strong><span>Calling workspace</span></div></div>
-    <div class="workspace-switch"><span class="dot"></span><div><b>Personal workspace</b><small>Online</small></div><span>⌄</span></div>
-    <nav class="nav">
-      <p class="nav-label">WORKSPACE</p>
-      <button class="nav-item active" data-page="home"><i>⌂</i><span>Home</span></button>
-      <button class="nav-item" data-page="dialer"><i>⌕</i><span>Dialer</span><kbd>D</kbd></button>
-      <button class="nav-item" data-page="saved"><i>★</i><span>Saved Numbers</span></button>
-      <button class="nav-item" data-page="history"><i>◷</i><span>Call History</span></button>
-      <p class="nav-label">ACCOUNT</p>
-      <button class="nav-item" data-page="billing"><i>◉</i><span>Billing</span></button>
-      <button class="nav-item" data-page="settings"><i>⚙</i><span>Settings</span></button>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="balance-mini"><div><span>Available balance</span><b>$0.00</b></div><small>Pay-as-you-go</small><div class="progress"><span></span></div></div>
-      <button class="profile-mini"><span class="avatar-sm">N</span><span><b>Workspace owner</b><small>Personal account</small></span><span>•••</span></button>
-    </div>
-  </aside>
+  <div id="toast-root" class="toast-root"></div>
 
-  <main class="main">
-    <header class="topbar">
-      <button class="mobile-menu" id="mobileMenu">☰</button>
-      <div><p class="eyebrow" id="pageEyebrow">CALLING WORKSPACE</p><h1 id="pageTitle">Good morning</h1></div>
-      <div class="top-actions"><button class="help-btn">? <span>Help</span></button><button class="notification">♢<em></em></button><button class="avatar">N</button></div>
-    </header>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><div class="brand-mark">C</div><div><strong>CallFlow</strong><span>Calling workspace</span></div></div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
+        <button class="nav-item" data-view="dialer"><span>☎</span>Dialer</button>
+        <button class="nav-item" data-view="saved"><span>☆</span>Saved Numbers</button>
+        <button class="nav-item" data-view="history"><span>◷</span>Call History</button>
+        <button class="nav-item" data-view="billing"><span>◉</span>Billing</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span>Settings</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="provider-card"><span class="dot"></span><div><strong>Provider</strong><small>Not connected</small></div></div>
+        <div class="profile"><div class="avatar">U</div><div><strong>Workspace</strong><small>Local preview</small></div></div>
+      </div>
+    </aside>
 
-    <section id="home" class="page active-page">
-      <div class="hero-card">
-        <div class="hero-copy"><span class="status-pill"><span></span> READY TO CALL</span><h2>Make your next call in seconds.</h2><p>Dial a number, save it for later, and keep every call organized in one clean workspace.</p><div class="hero-actions"><button class="primary" data-go="dialer">Open Dialer <span>→</span></button><button class="ghost" data-go="saved">View saved numbers</button></div></div>
-        <div class="hero-visual"><div class="signal s1"></div><div class="signal s2"></div><div class="phone-orb">☎</div><span class="float-tag tag-a">FAST CALLS</span><span class="float-tag tag-b">PAYG</span></div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon blue">☎</div><span>Today's calls</span><strong id="todayCalls">0</strong><small id="todaySub">No calls yet</small></div>
-        <div class="stat-card"><div class="stat-icon purple">◷</div><span>Total minutes</span><strong id="totalMinutes">0:00</strong><small>This workspace</small></div>
-        <div class="stat-card"><div class="stat-icon gold">★</div><span>Saved numbers</span><strong id="savedCount">0</strong><small>Ready to call</small></div>
-        <div class="stat-card"><div class="stat-icon green">$</div><span>Balance</span><strong>$0.00</strong><small>Provider balance</small></div>
-      </div>
-      <div class="grid-2">
-        <div class="panel"><div class="section-head"><div><h3>Recent calls</h3><p>Latest calling activity</p></div><button class="text-button" data-go="history">View all →</button></div><div id="homeRecent" class="activity-list"></div></div>
-        <div class="panel quick-panel"><div class="section-head"><div><h3>Quick actions</h3><p>Get where you need to go</p></div></div><button class="quick-action" data-go="dialer"><span class="qa-icon">⌕</span><span><b>Open Dialer</b><small>Enter a number and call</small></span><i>→</i></button><button class="quick-action" data-action="save"><span class="qa-icon">★</span><span><b>Save a number</b><small>Keep a number for later</small></span><i>→</i></button><button class="quick-action" data-go="billing"><span class="qa-icon">$</span><span><b>View balance</b><small>Recharge and transactions</small></span><i>→</i></button></div>
-      </div>
-    </section>
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu">☰</button>
+        <div class="crumb" id="page-title">Home</div>
+        <div class="top-actions"><button class="icon-btn" id="global-search" title="Search">⌕</button><button class="icon-btn" id="help-btn" title="Help">?</button></div>
+      </header>
 
-    <section id="dialer" class="page">
-      <div class="page-intro"><div><h2>Dialer</h2><p>Enter a phone number and start a call.</p></div><div class="connection"><span></span> Calling service ready for connection</div></div>
-      <div class="dialer-layout">
-        <div class="dialer-card panel">
-          <div class="dialer-top"><span class="eyebrow">PHONE NUMBER</span><button id="pasteNumber" class="small-btn">Paste</button></div>
-          <div class="number-display" id="numberDisplay">Enter a number</div>
-          <div class="number-tools"><button id="clearNumber" class="icon-button">⌫</button><button id="saveCurrent" class="save-current">☆ Save number</button></div>
-          <div class="keypad">
-            <button data-key="1">1</button><button data-key="2">2<small>ABC</small></button><button data-key="3">3<small>DEF</small></button>
-            <button data-key="4">4<small>GHI</small></button><button data-key="5">5<small>JKL</small></button><button data-key="6">6<small>MNO</small></button>
-            <button data-key="7">7<small>PQRS</small></button><button data-key="8">8<small>TUV</small></button><button data-key="9">9<small>WXYZ</small></button>
-            <button data-key="*">*</button><button data-key="0">0<small>+</small></button><button data-key="#">#</button>
+      <section class="content">
+        <!-- HOME -->
+        <div class="view active" id="view-home">
+          <div class="hero">
+            <div><p class="eyebrow">CALLING WORKSPACE</p><h1>Make your next call in seconds.</h1><p>Keep your numbers, history and calling controls in one place.</p><button class="primary" data-view="dialer">Open dialer <span>→</span></button></div>
+            <div class="hero-art"><div class="phone-orb">☎</div><div class="ring r1"></div><div class="ring r2"></div></div>
           </div>
-          <button id="callButton" class="call-button" disabled><span>☎</span> Call</button>
-          <p class="keyboard-hint">Tip: use your keyboard number keys to dial faster.</p>
+          <div class="stats">
+            <div class="stat"><span>Calls today</span><strong id="stat-calls">0</strong><small>From local history</small></div>
+            <div class="stat"><span>Minutes</span><strong id="stat-minutes">0m</strong><small>Completed calls</small></div>
+            <div class="stat"><span>Saved numbers</span><strong id="stat-saved">0</strong><small>Stored on this device</small></div>
+            <div class="stat"><span>Provider</span><strong class="small-value">Not connected</strong><small>Backend will connect later</small></div>
+          </div>
+          <div class="section-head"><div><h2>Quick actions</h2><p>Jump straight into the work.</p></div></div>
+          <div class="quick-grid">
+            <button class="quick-card" data-view="dialer"><b>☎</b><strong>New call</strong><span>Open the dialer</span></button>
+            <button class="quick-card" data-view="saved"><b>☆</b><strong>Saved numbers</strong><span>Find a number quickly</span></button>
+            <button class="quick-card" data-view="history"><b>◷</b><strong>Call history</strong><span>Review recent calls</span></button>
+            <button class="quick-card" data-view="settings"><b>⚙</b><strong>Settings</strong><span>Configure the workspace</span></button>
+          </div>
         </div>
-        <div class="dialer-side">
-          <div class="panel side-card"><div class="side-card-head"><span class="eyebrow">RECENT</span><button class="text-button" data-go="history">View all</button></div><div id="dialerRecent"></div></div>
-          <div class="panel side-card"><span class="eyebrow">CALLING LAYER</span><h3>Provider-ready by design.</h3><p>When the backend is connected, this dialer will send the call through our service layer instead of talking directly to a provider.</p><div class="architecture"><span>APP</span><b>→</b><span>CALL API</span><b>→</b><span>PROVIDER</span></div></div>
+
+        <!-- DIALER -->
+        <div class="view" id="view-dialer">
+          <div class="page-head"><div><p class="eyebrow">DIALER</p><h1>Make a call</h1><p>Enter a number or choose one from your saved list.</p></div></div>
+          <div class="dialer-layout">
+            <div class="panel dial-panel">
+              <div class="number-wrap"><input id="number-input" autocomplete="tel" inputmode="tel" placeholder="Enter phone number" aria-label="Phone number"><button id="clear-number" class="clear-btn">×</button></div>
+              <div class="dial-keypad">
+                <button data-key="1">1</button><button data-key="2">2<span>ABC</span></button><button data-key="3">3<span>DEF</span></button>
+                <button data-key="4">4<span>GHI</span></button><button data-key="5">5<span>JKL</span></button><button data-key="6">6<span>MNO</span></button>
+                <button data-key="7">7<span>PQRS</span></button><button data-key="8">8<span>TUV</span></button><button data-key="9">9<span>WXYZ</span></button>
+                <button data-key="*">*</button><button data-key="0">0<span>+</span></button><button data-key="#">#</button>
+              </div>
+              <div class="dial-actions"><button class="secondary" id="save-from-dialer">☆ Save number</button><button class="call-btn" id="call-btn">☎</button><button class="secondary" id="backspace">⌫</button></div>
+            </div>
+            <div class="panel side-panel"><div class="panel-head"><div><h3>Recent numbers</h3><p>Quickly dial a recent contact.</p></div><button class="text-btn" data-view="history">View all</button></div><div id="dialer-recents" class="compact-list"></div></div>
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section id="saved" class="page">
-      <div class="page-intro"><div><h2>Saved Numbers</h2><p>Keep frequently used numbers one click away.</p></div><button class="primary" data-go="dialer">+ Add from Dialer</button></div>
-      <div class="toolbar"><div class="search-box">⌕<input id="savedSearch" placeholder="Search saved numbers..."></div><button class="filter-btn">All ▾</button></div>
-      <div id="savedList" class="saved-list"></div>
-    </section>
+        <!-- SAVED -->
+        <div class="view" id="view-saved">
+          <div class="page-head row"><div><p class="eyebrow">SAVED NUMBERS</p><h1>Your numbers</h1><p>Save frequently used numbers for one-tap calling.</p></div><button class="primary" id="add-number-btn">＋ Add number</button></div>
+          <div class="toolbar"><div class="search-box">⌕<input id="saved-search" placeholder="Search name, number or note"></div></div>
+          <div id="saved-list" class="saved-grid"></div>
+        </div>
 
-    <section id="history" class="page">
-      <div class="page-intro"><div><h2>Call History</h2><p>A clear record of your calling activity.</p></div><button id="clearHistory" class="ghost">Clear history</button></div>
-      <div class="history-summary"><div><span>Total calls</span><b id="historyCount">0</b></div><div><span>Completed</span><b id="historyCompleted">0</b></div><div><span>Total talk time</span><b id="historyDuration">0:00</b></div><div><span>Missed</span><b id="historyMissed">0</b></div></div>
-      <div class="panel table-panel"><div class="table-head"><span>CALL</span><span>DATE & TIME</span><span>DURATION</span><span>STATUS</span><span></span></div><div id="historyList"></div></div>
-    </section>
+        <!-- HISTORY -->
+        <div class="view" id="view-history">
+          <div class="page-head row"><div><p class="eyebrow">CALL HISTORY</p><h1>Recent calls</h1><p>Every call will appear here once calling is connected.</p></div><button class="secondary danger-text" id="clear-history">Clear history</button></div>
+          <div class="history-summary"><div><span>Total calls</span><strong id="history-total">0</strong></div><div><span>Completed</span><strong id="history-completed">0</strong></div><div><span>Minutes</span><strong id="history-minutes">0m</strong></div></div>
+          <div class="panel table-panel"><div class="table-head"><span>Number</span><span>Direction</span><span>Date</span><span>Duration</span><span></span></div><div id="history-list"></div></div>
+        </div>
 
-    <section id="billing" class="page">
-      <div class="page-intro"><div><h2>Billing</h2><p>Track your calling balance and future recharges.</p></div><button class="primary" id="rechargeBtn">+ Recharge</button></div>
-      <div class="billing-grid"><div class="balance-card"><div><span class="eyebrow">AVAILABLE BALANCE</span><h2>$0.00</h2><p>Provider balance</p></div><div class="balance-ring"><span>PAY<br>AS YOU<br>GO</span></div></div><div class="panel estimate-card"><span class="eyebrow">ESTIMATE</span><h3>~350 minutes</h3><p>Estimated calling time based on a placeholder rate. Actual minutes will update from the provider.</p><div class="progress large"><span></span></div></div></div>
-      <div class="panel billing-panel"><div class="section-head"><div><h3>Transactions</h3><p>Your recharge activity will appear here.</p></div></div><div id="transactions" class="empty-inline"><span>◉</span><b>No transactions yet</b><small>Connect billing in the backend to begin tracking payments.</small></div></div>
-    </section>
+        <!-- BILLING -->
+        <div class="view" id="view-billing">
+          <div class="page-head"><p class="eyebrow">BILLING</p><h1>Usage & billing</h1><p>Provider billing will be connected when the backend is ready.</p></div>
+          <div class="billing-card"><div><span>Provider balance</span><strong>—</strong><small>Not connected</small></div><button class="secondary" id="connect-provider">Connect provider</button></div>
+          <div class="info-banner"><b>Billing is not connected yet.</b><span>No provider balance, recharge amount, or transaction value is hardcoded into this interface.</span></div>
+          <div class="panel"><div class="panel-head"><div><h3>Transactions</h3><p>Provider transactions will appear here.</p></div></div><div class="empty"><div class="empty-icon">◉</div><h3>No transactions yet</h3><p>Connect the backend to load real billing information.</p></div></div>
+        </div>
 
-    <section id="settings" class="page">
-      <div class="page-intro"><div><h2>Settings</h2><p>Manage your calling workspace.</p></div></div>
-      <div class="settings-layout">
-        <div class="settings-nav"><button class="settings-tab active" data-settings="general">General</button><button class="settings-tab" data-settings="calling">Calling</button><button class="settings-tab" data-settings="account">Account</button><button class="settings-tab" data-settings="api">API</button></div>
-        <div class="panel settings-content" id="settingsContent"></div>
-      </div>
-    </section>
-  </main>
-</div>
+        <!-- SETTINGS -->
+        <div class="view" id="view-settings">
+          <div class="page-head"><p class="eyebrow">SETTINGS</p><h1>Workspace settings</h1><p>Frontend controls are ready. Provider credentials stay out of the UI code.</p></div>
+          <div class="settings-grid">
+            <div class="panel settings-card"><h3>General</h3><label>Workspace name<input id="workspace-name" value="CallFlow"></label><label>Default country<input id="default-country" value="+234"></label><button class="primary" id="save-settings">Save changes</button></div>
+            <div class="panel settings-card"><h3>Calling</h3><label class="switch-row"><span>Confirm before clearing a number</span><input type="checkbox" id="confirm-clear" checked><i></i></label><label class="switch-row"><span>Show call notifications</span><input type="checkbox" id="call-notifications" checked><i></i></label><p class="muted">Actual call settings will be controlled by the backend/provider integration.</p></div>
+            <div class="panel settings-card"><h3>API</h3><p class="muted">Your future CRM will connect to the CallFlow API, not directly to the phone provider.</p><div class="code-box">POST /api/calls<br>POST /api/numbers<br>GET /api/history</div><button class="secondary" id="api-info">API architecture</button></div>
+            <div class="panel settings-card"><h3>Danger zone</h3><p class="muted">Local preview data can be removed from this browser.</p><button class="secondary danger-text" id="reset-data">Reset local data</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-<div id="saveModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><span class="eyebrow">SAVE NUMBER</span><h3 id="modalTitle">Give this number a name</h3></div><button id="closeModal" class="close">×</button></div><label>Name<input id="saveName" placeholder="e.g. John, Seller, Office" maxlength="40"></label><label>Phone number<input id="savePhone" readonly></label><label>Note <span>(optional)</span><textarea id="saveNote" placeholder="Add a note..."></textarea></label><div class="modal-actions"><button class="ghost" id="cancelSave">Cancel</button><button class="primary" id="confirmSave">Save number</button></div></div></div>
-<div id="callModal" class="modal hidden"><div class="call-modal"><div class="calling-avatar" id="callingAvatar">N</div><span class="eyebrow">OUTGOING CALL</span><h2 id="callingName">Calling...</h2><p id="callingNumber"></p><div class="call-timer" id="callTimer">00:00</div><div class="call-state" id="callState"><span></span> Connecting</div><button id="endCall" class="end-call">☎ End call</button><small>Live provider calling will be connected in the backend phase.</small></div></div>
-<div id="toast" class="toast"></div>
-<script src="app.js"></script>
-</body></html>
+  <!-- MODAL -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modal-close">×</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
