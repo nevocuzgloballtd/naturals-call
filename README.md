@@ -1,37 +1,40 @@
-# CallFlow
+# CallFlow — Supabase frontend
 
-Standalone calling-app frontend prototype.
+This version uses Vite + Supabase JS. It is designed for Vercel environment variables.
 
-## Current phase
+## Vercel environment variables
+Add these to the Vercel project:
 
-This repository contains the complete frontend UI and browser interactions. It does **not** connect to a real calling provider yet.
+- `VITE_SUPABASE_URL` = Supabase Project URL
+- `VITE_SUPABASE_ANON_KEY` = Supabase publishable/anon key
 
-### Included
-- Home dashboard
-- Dialer and keypad
-- Keyboard dialing
+Do **not** use the Supabase `service_role`/secret key in the browser or in Vercel frontend variables.
+
+Redeploy after saving the variables.
+
+## Local
+```bash
+npm install
+npm run dev
+```
+
+## What is connected now
+- Supabase email/password authentication
+- Profiles
 - Saved numbers CRUD
-- Search saved numbers
-- Local call history
-- Demo call state and timer
-- Billing placeholder with no hardcoded provider balance
-- Settings
-- Future API architecture screen
-- Responsive laptop/mobile layout
-- Local browser persistence
+- Call history stored in `calls`
+- Dashboard counts from Supabase
+- Billing transaction list from Supabase
+- Workspace settings saved to `profiles`
+- RLS-backed user isolation
 
-## Run
+The current call button creates a Supabase call record and completes it as a demo call. It does **not** place a real phone call yet.
 
-Open `index.html` in a browser.
+## Next backend layer
+Supabase Edge Functions should handle the real provider connection:
+- `make-call`
+- `call-webhook`
+- `provider-balance`
+- later: recharge/payment webhook
 
-## Next phase
-
-Build the backend/API:
-
-`CallFlow UI → CallFlow API → provider adapter → calling provider`
-
-The future wholesaling CRM will call the CallFlow API instead of connecting directly to the provider.
-
-## Security note
-
-Provider API keys, payment credentials, webhooks, and secrets must never be placed in the frontend files. They belong in the backend environment.
+Provider secrets stay in Supabase Edge Function secrets, not in Vercel/frontend code.
