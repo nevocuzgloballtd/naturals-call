@@ -1,3 +1,4 @@
+```js
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -51,6 +52,7 @@ let saved = [];
 let history = [];
 let transactions = [];
 let profile = null;
+let telnyxDashboard = null;
 
 let settings = {
   workspace: 'CallFlow',
@@ -72,6 +74,7 @@ function toast(msg, type = '') {
   const e = document.createElement('div');
 
   e.className = `toast ${type}`;
+
   e.textContent = msg;
 
   root.append(e);
@@ -386,7 +389,9 @@ function updateProfileUI() {
     (name[0] || 'U').toUpperCase();
 
   $('.provider-card small').textContent =
-    'Not connected';
+    telnyxDashboard?.provider?.connected
+      ? 'Connected'
+      : 'Not connected';
 }
 
 
@@ -450,6 +455,68 @@ async function loadTransactions() {
 }
 
 
+/* =========================================================
+   TELNYX DASHBOARD
+========================================================= */
+
+async function loadTelnyxDashboard() {
+
+  if (!user) return null;
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabase.functions.invoke(
+      'telnyx-dashboard'
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data?.success) {
+
+      throw new Error(
+        data?.error ||
+        'Could not connect to Telnyx'
+      );
+    }
+
+    telnyxDashboard = data;
+
+    console.log(
+      'Telnyx dashboard:',
+      data
+    );
+
+    updateProfileUI();
+
+    return data;
+
+  } catch (err) {
+
+    console.error(
+      'Telnyx dashboard error:',
+      err
+    );
+
+    telnyxDashboard = null;
+
+    toast(
+      err.message ||
+      'Could not load Telnyx data',
+      'warn'
+    );
+
+    updateProfileUI();
+
+    return null;
+  }
+}
+
+
 async function loadAppData() {
 
   if (!user) return;
@@ -460,7 +527,8 @@ async function loadAppData() {
       loadProfile(),
       loadSaved(),
       loadHistory(),
-      loadTransactions()
+      loadTransactions(),
+      loadTelnyxDashboard()
     ]);
 
     renderAll();
@@ -1336,12 +1404,6 @@ async function startDemoCall(number) {
 
   try {
 
-    /*
-     * Make sure the current authenticated
-     * Supabase session exists before calling
-     * the protected Edge Function.
-     */
-
     const {
       data: {
         session: currentSession
@@ -1360,13 +1422,6 @@ async function startDemoCall(number) {
     }
 
 
-    /*
-     * Call the make-call Edge Function.
-     *
-     * The Supabase client automatically sends
-     * the authenticated user's session.
-     */
-
     const {
       data,
       error
@@ -1384,11 +1439,6 @@ async function startDemoCall(number) {
       throw error;
     }
 
-
-    /*
-     * The Edge Function must return
-     * the newly created calls row.
-     */
 
     if (!data?.call?.id) {
 
@@ -1419,10 +1469,6 @@ async function startDemoCall(number) {
       'success'
     );
 
-
-    /*
-     * End call button.
-     */
 
     $('#end-demo').onclick =
       async () => {
@@ -1463,11 +1509,6 @@ async function startDemoCall(number) {
 
 
         try {
-
-          /*
-           * Call the protected
-           * end-call Edge Function.
-           */
 
           const {
             data: endData,
@@ -1756,10 +1797,29 @@ $('#clear-history').onclick =
 ========================================================= */
 
 $('#connect-provider').onclick =
-  () =>
-    toast(
-      'Provider connection will be added through Supabase Edge Functions'
-    );
+  async () => {
+
+    if (!user) {
+
+      return toast(
+        'Please sign in first',
+        'warn'
+      );
+    }
+
+    const data =
+      await loadTelnyxDashboard();
+
+    if (data?.success) {
+
+      toast(
+        'Telnyx connected successfully',
+        'success'
+      );
+
+    }
+
+  };
 
 
 $('#api-info').onclick =
@@ -2018,3 +2078,4 @@ supabase.auth.onAuthStateChange(
 
 
 boot();
+```
