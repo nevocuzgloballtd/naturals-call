@@ -6,6 +6,7 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
+
 const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;',
@@ -15,35 +16,104 @@ const esc = (s) =>
     "'": '&#039;'
   }[c]));
 
-const normalize = (n) => String(n || '').replace(/[^\d*+#]/g, '');
+const normalize = (n) =>
+  String(n || '').replace(/[^\d*+#]/g, '');
 
 const formatDuration = (s) =>
-  !s ? '—' : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  !s
+    ? '—'
+    : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+const formatMoney = (value, currency = 'USD') => {
+  const amount = Number(value ?? 0);
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency || 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4
+    }).format(amount);
+  } catch {
+    return `${currency || 'USD'} ${amount.toFixed(2)}`;
+  }
+};
+
+const formatNumber = (value) => {
+  const number = Number(value ?? 0);
+
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 2
+  }).format(number);
+};
+
+const formatDate = (value) => {
+  if (!value) return '—';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+
+  return date.toLocaleString();
+};
+
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
+
   document.body.innerHTML = `
-    <div style="min-height:100vh;display:grid;place-items:center;background:#0b0f14;color:#fff;font-family:Inter,system-ui;padding:24px">
-      <div style="max-width:560px;background:#121821;border:1px solid #253041;border-radius:18px;padding:28px">
-        <h1 style="margin-top:0">CallFlow needs Supabase environment variables</h1>
+    <div
+      style="
+        min-height:100vh;
+        display:grid;
+        place-items:center;
+        background:#0b0f14;
+        color:#fff;
+        font-family:Inter,system-ui;
+        padding:24px
+      "
+    >
+      <div
+        style="
+          max-width:560px;
+          background:#121821;
+          border:1px solid #253041;
+          border-radius:18px;
+          padding:28px
+        "
+      >
+        <h1 style="margin-top:0">
+          CallFlow needs Supabase environment variables
+        </h1>
+
         <p>
           Set <b>VITE_SUPABASE_URL</b> and
-          <b>VITE_SUPABASE_ANON_KEY</b> in Vercel, then redeploy.
+          <b>VITE_SUPABASE_ANON_KEY</b> in Vercel,
+          then redeploy.
         </p>
+
         <p>
-          Use the Supabase Project URL and the publishable/anon key.
-          Never put the service_role key in frontend environment variables.
+          Use the Supabase Project URL and the
+          publishable/anon key.
+          Never put the service_role key in frontend
+          environment variables.
         </p>
       </div>
     </div>
   `;
 
-  throw new Error('Missing Supabase environment variables');
+  throw new Error(
+    'Missing Supabase environment variables'
+  );
 }
+
 
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
 
 let session = null;
 let user = null;
@@ -53,6 +123,7 @@ let history = [];
 let transactions = [];
 let profile = null;
 let telnyxDashboard = null;
+
 
 let settings = {
   workspace: 'CallFlow',
@@ -67,19 +138,26 @@ let settings = {
 ========================================================= */
 
 function toast(msg, type = '') {
+
   const root = $('#toast-root');
 
   if (!root) return;
 
-  const e = document.createElement('div');
+  const e =
+    document.createElement('div');
 
-  e.className = `toast ${type}`;
+  e.className =
+    `toast ${type}`;
 
-  e.textContent = msg;
+  e.textContent =
+    msg;
 
   root.append(e);
 
-  setTimeout(() => e.remove(), 2500);
+  setTimeout(
+    () => e.remove(),
+    2500
+  );
 }
 
 
@@ -88,41 +166,63 @@ function toast(msg, type = '') {
 ========================================================= */
 
 function showAuth() {
-  let el = $('#auth-gate');
+
+  let el =
+    $('#auth-gate');
 
   if (!el) {
-    el = document.createElement('div');
 
-    el.id = 'auth-gate';
+    el =
+      document.createElement('div');
+
+    el.id =
+      'auth-gate';
 
     el.innerHTML = `
       <div class="auth-card">
 
         <div class="brand">
-          <div class="brand-mark">C</div>
+
+          <div class="brand-mark">
+            C
+          </div>
 
           <div>
-            <strong>CallFlow</strong>
-            <span>Calling workspace</span>
+            <strong>
+              CallFlow
+            </strong>
+
+            <span>
+              Calling workspace
+            </span>
           </div>
+
         </div>
 
+
         <div class="auth-copy">
-          <p class="eyebrow">SECURE WORKSPACE</p>
+
+          <p class="eyebrow">
+            SECURE WORKSPACE
+          </p>
 
           <h1 id="auth-title">
             Sign in to CallFlow
           </h1>
 
           <p id="auth-subtitle">
-            Use your account to access saved numbers, history and billing.
+            Use your account to access saved numbers,
+            history and billing.
           </p>
+
         </div>
+
 
         <form id="auth-form">
 
           <label>
             Email
+
             <input
               id="auth-email"
               type="email"
@@ -132,8 +232,10 @@ function showAuth() {
             >
           </label>
 
+
           <label>
             Password
+
             <input
               id="auth-password"
               type="password"
@@ -144,6 +246,7 @@ function showAuth() {
             >
           </label>
 
+
           <button
             class="primary"
             id="auth-submit"
@@ -153,6 +256,7 @@ function showAuth() {
           </button>
 
         </form>
+
 
         <div class="auth-foot">
 
@@ -170,6 +274,7 @@ function showAuth() {
 
         </div>
 
+
         <div
           id="auth-message"
           class="auth-message"
@@ -182,7 +287,9 @@ function showAuth() {
 
     let signup = false;
 
+
     $('#auth-switch').onclick = () => {
+
       signup = !signup;
 
       $('#auth-title').textContent =
@@ -210,80 +317,101 @@ function showAuth() {
           ? 'Sign in'
           : 'Create account';
 
-      $('#auth-message').textContent = '';
+      $('#auth-message').textContent =
+        '';
     };
 
-    $('#auth-form').onsubmit = async (e) => {
-      e.preventDefault();
 
-      const email = $('#auth-email').value.trim();
-      const password = $('#auth-password').value;
+    $('#auth-form').onsubmit =
+      async (e) => {
 
-      const btn = $('#auth-submit');
+        e.preventDefault();
 
-      btn.disabled = true;
+        const email =
+          $('#auth-email')
+            .value
+            .trim();
 
-      btn.textContent =
-        signup
-          ? 'Creating…'
-          : 'Signing in…';
+        const password =
+          $('#auth-password')
+            .value;
 
-      $('#auth-message').textContent = '';
+        const btn =
+          $('#auth-submit');
 
-      try {
-
-        if (signup) {
-
-          const {
-            data,
-            error
-          } = await supabase.auth.signUp({
-            email,
-            password
-          });
-
-          if (error) throw error;
-
-          if (!data.session) {
-
-            $('#auth-message').textContent =
-              'Account created. Check your email to confirm the account, then sign in.';
-
-          } else {
-
-            toast(
-              'Account created',
-              'success'
-            );
-
-          }
-
-        } else {
-
-          const { error } =
-            await supabase.auth.signInWithPassword({
-              email,
-              password
-            });
-
-          if (error) throw error;
-        }
-
-      } catch (err) {
-
-        $('#auth-message').textContent =
-          err.message || 'Authentication failed.';
-
-      } finally {
-
-        btn.disabled = false;
+        btn.disabled =
+          true;
 
         btn.textContent =
           signup
-            ? 'Create account'
-            : 'Sign in';
-      }
-    };
+            ? 'Creating…'
+            : 'Signing in…';
+
+        $('#auth-message').textContent =
+          '';
+
+        try {
+
+          if (signup) {
+
+            const {
+              data,
+              error
+            } =
+              await supabase.auth.signUp({
+                email,
+                password
+              });
+
+            if (error) {
+              throw error;
+            }
+
+            if (!data.session) {
+
+              $('#auth-message').textContent =
+                'Account created. Check your email to confirm the account, then sign in.';
+
+            } else {
+
+              toast(
+                'Account created',
+                'success'
+              );
+            }
+
+          } else {
+
+            const {
+              error
+            } =
+              await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+
+            if (error) {
+              throw error;
+            }
+          }
+
+        } catch (err) {
+
+          $('#auth-message').textContent =
+            err.message ||
+            'Authentication failed.';
+
+        } finally {
+
+          btn.disabled =
+            false;
+
+          btn.textContent =
+            signup
+              ? 'Create account'
+              : 'Sign in';
+        }
+      };
   }
 
   el.classList.add('open');
@@ -291,7 +419,10 @@ function showAuth() {
 
 
 function hideAuth() {
-  $('#auth-gate')?.classList.remove('open');
+
+  $('#auth-gate')
+    ?.classList
+    .remove('open');
 }
 
 
@@ -305,7 +436,9 @@ function navigate(view) {
     v.classList.remove('active')
   );
 
-  $(`#view-${view}`)?.classList.add('active');
+  $(`#view-${view}`)
+    ?.classList
+    .add('active');
 
   $$('.nav-item').forEach(n =>
     n.classList.toggle(
@@ -313,6 +446,7 @@ function navigate(view) {
       n.dataset.view === view
     )
   );
+
 
   const labels = {
     home: 'Home',
@@ -323,10 +457,16 @@ function navigate(view) {
     settings: 'Settings'
   };
 
-  $('#page-title').textContent =
-    labels[view] || 'CallFlow';
 
-  $('#sidebar').classList.remove('open');
+  $('#page-title').textContent =
+    labels[view] ||
+    'CallFlow';
+
+
+  $('#sidebar')
+    .classList
+    .remove('open');
+
 
   renderAll();
 
@@ -341,8 +481,12 @@ $$('[data-view]').forEach(b =>
   )
 );
 
-$('#mobile-menu').onclick = () =>
-  $('#sidebar').classList.toggle('open');
+
+$('#mobile-menu').onclick =
+  () =>
+    $('#sidebar')
+      .classList
+      .toggle('open');
 
 
 /* =========================================================
@@ -354,21 +498,27 @@ async function loadProfile() {
   const {
     data,
     error
-  } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
+  } =
+    await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
-  profile = data;
+  profile =
+    data;
 
   settings.workspace =
-    data?.workspace_name || 'CallFlow';
+    data?.workspace_name ||
+    'CallFlow';
 
   settings.country =
-    data?.default_country_code || '+234';
+    data?.default_country_code ||
+    '+234';
 
   updateProfileUI();
 }
@@ -377,21 +527,61 @@ async function loadProfile() {
 function updateProfileUI() {
 
   const name =
-    profile?.full_name || 'Workspace';
+    profile?.full_name ||
+    'Workspace';
+
 
   $('#profile-name').textContent =
     name;
 
   $('#profile-email').textContent =
-    user?.email || 'Signed in';
+    user?.email ||
+    'Signed in';
 
   $('#profile-avatar').textContent =
-    (name[0] || 'U').toUpperCase();
+    (name[0] || 'U')
+      .toUpperCase();
 
-  $('.provider-card small').textContent =
-    telnyxDashboard?.provider?.connected
+
+  const connected =
+    Boolean(
+      telnyxDashboard
+        ?.provider
+        ?.connected
+    );
+
+
+  const providerText =
+    connected
       ? 'Connected'
       : 'Not connected';
+
+
+  const sidebarStatus =
+    $('#sidebar-provider-status');
+
+  if (sidebarStatus) {
+    sidebarStatus.textContent =
+      providerText;
+  }
+
+
+  const oldProviderSmall =
+    $('.provider-card small');
+
+  if (oldProviderSmall) {
+    oldProviderSmall.textContent =
+      providerText;
+  }
+
+
+  const statProvider =
+    $('#stat-provider');
+
+  if (statProvider) {
+    statProvider.textContent =
+      providerText;
+  }
 }
 
 
@@ -404,16 +594,23 @@ async function loadSaved() {
   const {
     data,
     error
-  } = await supabase
-    .from('saved_numbers')
-    .select('*')
-    .order('created_at', {
-      ascending: false
-    });
+  } =
+    await supabase
+      .from('saved_numbers')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
-  saved = data || [];
+  saved =
+    data || [];
 }
 
 
@@ -422,17 +619,24 @@ async function loadHistory() {
   const {
     data,
     error
-  } = await supabase
-    .from('calls')
-    .select('*')
-    .order('started_at', {
-      ascending: false
-    })
-    .limit(200);
+  } =
+    await supabase
+      .from('calls')
+      .select('*')
+      .order(
+        'started_at',
+        {
+          ascending: false
+        }
+      )
+      .limit(200);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
-  history = data || [];
+  history =
+    data || [];
 }
 
 
@@ -441,17 +645,24 @@ async function loadTransactions() {
   const {
     data,
     error
-  } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('created_at', {
-      ascending: false
-    })
-    .limit(100);
+  } =
+    await supabase
+      .from('transactions')
+      .select('*')
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      )
+      .limit(100);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
-  transactions = data || [];
+  transactions =
+    data || [];
 }
 
 
@@ -461,20 +672,26 @@ async function loadTransactions() {
 
 async function loadTelnyxDashboard() {
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
+
 
   try {
 
     const {
       data,
       error
-    } = await supabase.functions.invoke(
-      'telnyx-dashboard'
-    );
+    } =
+      await supabase.functions.invoke(
+        'telnyx-dashboard'
+      );
+
 
     if (error) {
       throw error;
     }
+
 
     if (!data?.success) {
 
@@ -484,14 +701,21 @@ async function loadTelnyxDashboard() {
       );
     }
 
-    telnyxDashboard = data;
+
+    telnyxDashboard =
+      data;
+
 
     console.log(
       'Telnyx dashboard:',
       data
     );
 
+
     updateProfileUI();
+
+    renderTelnyxDashboard();
+
 
     return data;
 
@@ -502,7 +726,15 @@ async function loadTelnyxDashboard() {
       err
     );
 
-    telnyxDashboard = null;
+
+    telnyxDashboard =
+      null;
+
+
+    updateProfileUI();
+
+    renderTelnyxDashboard();
+
 
     toast(
       err.message ||
@@ -510,16 +742,548 @@ async function loadTelnyxDashboard() {
       'warn'
     );
 
-    updateProfileUI();
 
     return null;
   }
 }
 
 
+/* =========================================================
+   TELNYX BILLING / PROVIDER UI
+========================================================= */
+
+function getTelnyxBalance() {
+
+  const balance =
+    telnyxDashboard?.balance;
+
+  if (balance == null) {
+    return null;
+  }
+
+
+  if (typeof balance === 'number') {
+    return balance;
+  }
+
+
+  if (typeof balance === 'string') {
+    return Number(balance);
+  }
+
+
+  return Number(
+    balance.balance ??
+    balance.current_balance ??
+    balance.available_balance ??
+    balance.amount ??
+    0
+  );
+}
+
+
+function getTelnyxCurrency() {
+
+  const balance =
+    telnyxDashboard?.balance;
+
+  if (
+    balance &&
+    typeof balance === 'object'
+  ) {
+
+    return (
+      balance.currency ||
+      balance.currency_code ||
+      'USD'
+    );
+  }
+
+  return 'USD';
+}
+
+
+function renderTelnyxDashboard() {
+
+  const data =
+    telnyxDashboard;
+
+
+  const connected =
+    Boolean(
+      data?.provider?.connected
+    );
+
+
+  /* -------------------------------------------------------
+     BALANCE
+  ------------------------------------------------------- */
+
+  const balanceEl =
+    $('#provider-balance');
+
+
+  const statusEl =
+    $('#provider-status');
+
+
+  if (balanceEl) {
+
+    if (connected && data?.balance != null) {
+
+      const balance =
+        getTelnyxBalance();
+
+      const currency =
+        getTelnyxCurrency();
+
+      balanceEl.textContent =
+        formatMoney(
+          balance,
+          currency
+        );
+
+    } else {
+
+      balanceEl.textContent =
+        '—';
+    }
+  }
+
+
+  if (statusEl) {
+
+    statusEl.textContent =
+      connected
+        ? 'Telnyx connected'
+        : 'Not connected';
+  }
+
+
+  /* -------------------------------------------------------
+     PROVIDER BANNER
+  ------------------------------------------------------- */
+
+  const banner =
+    $('#provider-banner');
+
+
+  if (banner) {
+
+    if (connected) {
+
+      banner.innerHTML = `
+        <b>
+          Telnyx connected
+        </b>
+
+        <span>
+          Live provider information is being
+          loaded securely through CallFlow's backend.
+        </span>
+      `;
+
+    } else {
+
+      banner.innerHTML = `
+        <b>
+          Telnyx is not connected
+        </b>
+
+        <span>
+          Connect the provider to load balance,
+          numbers and usage information.
+        </span>
+      `;
+    }
+  }
+
+
+  /* -------------------------------------------------------
+     PHONE NUMBERS
+  ------------------------------------------------------- */
+
+  renderTelnyxNumbers();
+
+
+  /* -------------------------------------------------------
+     USAGE
+  ------------------------------------------------------- */
+
+  renderTelnyxUsage();
+}
+
+
+function renderTelnyxNumbers() {
+
+  const box =
+    $('#provider-numbers');
+
+
+  if (!box) {
+    return;
+  }
+
+
+  const numbers =
+    telnyxDashboard?.numbers ||
+    [];
+
+
+  if (!telnyxDashboard?.provider?.connected) {
+
+    box.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">
+          ☎
+        </div>
+
+        <h3>
+          Provider not connected
+        </h3>
+
+        <p>
+          Connect Telnyx to load your phone numbers.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if (!numbers.length) {
+
+    box.innerHTML = `
+      <div class="empty">
+
+        <div class="empty-icon">
+          ☎
+        </div>
+
+        <h3>
+          No Telnyx numbers yet
+        </h3>
+
+        <p>
+          Your Telnyx phone numbers will appear here
+          after you purchase and assign one.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  box.innerHTML =
+    numbers.map(number => {
+
+      const phone =
+        number.phone_number ||
+        number.number ||
+        'Unknown number';
+
+      const status =
+        number.status ||
+        'active';
+
+      const connection =
+        number.connection_name ||
+        number.connection_id ||
+        'Telnyx';
+
+      return `
+        <div class="history-row">
+
+          <span>
+
+            <strong>
+              ${esc(phone)}
+            </strong>
+
+            <br>
+
+            <small>
+              ${esc(connection)}
+            </small>
+
+          </span>
+
+          <span>
+            Telnyx
+          </span>
+
+          <span>
+            ${esc(status)}
+          </span>
+
+          <span>
+            ${number.reservations
+              ? formatNumber(number.reservations)
+              : '—'}
+          </span>
+
+          <span></span>
+
+        </div>
+      `;
+
+    }).join('');
+}
+
+
+/* ---------------------------------------------------------
+   USAGE PANEL
+--------------------------------------------------------- */
+
+function ensureUsagePanel() {
+
+  let panel =
+    $('#provider-usage-panel');
+
+
+  if (panel) {
+    return panel;
+  }
+
+
+  const numbersBox =
+    $('#provider-numbers');
+
+
+  if (!numbersBox) {
+    return null;
+  }
+
+
+  const numbersPanel =
+    numbersBox.closest('.panel');
+
+
+  if (!numbersPanel) {
+    return null;
+  }
+
+
+  panel =
+    document.createElement('div');
+
+  panel.id =
+    'provider-usage-panel';
+
+  panel.className =
+    'panel';
+
+  numbersPanel.insertAdjacentElement(
+    'afterend',
+    panel
+  );
+
+
+  return panel;
+}
+
+
+function renderTelnyxUsage() {
+
+  const panel =
+    ensureUsagePanel();
+
+
+  if (!panel) {
+    return;
+  }
+
+
+  const usage =
+    telnyxDashboard?.usage;
+
+
+  const summary =
+    usage?.summary;
+
+
+  const connected =
+    Boolean(
+      telnyxDashboard
+        ?.provider
+        ?.connected
+    );
+
+
+  if (!connected) {
+
+    panel.innerHTML = `
+      <div class="panel-head">
+
+        <div>
+          <h3>
+            Usage
+          </h3>
+
+          <p>
+            Telnyx usage will appear here
+            when the provider is connected.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="empty">
+
+        <div class="empty-icon">
+          ◷
+        </div>
+
+        <h3>
+          Usage unavailable
+        </h3>
+
+        <p>
+          Connect Telnyx to load usage data.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  const attempted =
+    Number(
+      summary?.attempted ?? 0
+    );
+
+  const connectedCalls =
+    Number(
+      summary?.connected ?? 0
+    );
+
+  const cost =
+    Number(
+      summary?.cost ?? 0
+    );
+
+
+  const start =
+    usage?.period?.start;
+
+  const end =
+    usage?.period?.end;
+
+
+  const usageError =
+    usage?.error;
+
+
+  panel.innerHTML = `
+    <div class="panel-head">
+
+      <div>
+
+        <h3>
+          Usage
+        </h3>
+
+        <p>
+          Telnyx voice usage for the current
+          reporting window.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="history-summary">
+
+      <div>
+        <span>
+          Attempts
+        </span>
+
+        <strong>
+          ${formatNumber(attempted)}
+        </strong>
+      </div>
+
+
+      <div>
+        <span>
+          Connected
+        </span>
+
+        <strong>
+          ${formatNumber(connectedCalls)}
+        </strong>
+      </div>
+
+
+      <div>
+        <span>
+          Usage cost
+        </span>
+
+        <strong>
+          ${formatMoney(cost, 'USD')}
+        </strong>
+      </div>
+
+    </div>
+
+
+    <div
+      style="
+        margin-top:14px;
+        color:#7b8694;
+        font-size:11px;
+        line-height:1.6
+      "
+    >
+
+      <div>
+        Period:
+        ${esc(formatDate(start))}
+        —
+        ${esc(formatDate(end))}
+      </div>
+
+      ${
+        usageError
+          ? `
+            <div
+              style="
+                margin-top:6px;
+                color:#9b3d3d
+              "
+            >
+              Usage report:
+              ${esc(usageError)}
+            </div>
+          `
+          : ''
+      }
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   APP DATA
+========================================================= */
+
 async function loadAppData() {
 
-  if (!user) return;
+  if (!user) {
+    return;
+  }
+
 
   try {
 
@@ -530,6 +1294,7 @@ async function loadAppData() {
       loadTransactions(),
       loadTelnyxDashboard()
     ]);
+
 
     renderAll();
 
@@ -552,11 +1317,18 @@ async function loadAppData() {
 
 function updateStats() {
 
-  const today = new Date();
+  const today =
+    new Date();
 
-  const y = today.getFullYear();
-  const m = today.getMonth();
-  const d = today.getDate();
+  const y =
+    today.getFullYear();
+
+  const m =
+    today.getMonth();
+
+  const d =
+    today.getDate();
+
 
   const todayCalls =
     history.filter(x => {
@@ -572,12 +1344,17 @@ function updateStats() {
         t.getMonth() === m &&
         t.getDate() === d
       );
+
     });
+
 
   const completed =
     history.filter(
-      x => x.status === 'completed'
+      x =>
+        x.status ===
+        'completed'
     );
+
 
   const seconds =
     completed.reduce(
@@ -589,14 +1366,18 @@ function updateStats() {
       0
     );
 
+
   $('#stat-calls').textContent =
     todayCalls.length;
 
   $('#stat-minutes').textContent =
-    Math.round(seconds / 60) + 'm';
+    Math.round(
+      seconds / 60
+    ) + 'm';
 
   $('#stat-saved').textContent =
     saved.length;
+
 
   $('#history-total').textContent =
     history.length;
@@ -605,7 +1386,23 @@ function updateStats() {
     completed.length;
 
   $('#history-minutes').textContent =
-    Math.round(seconds / 60) + 'm';
+    Math.round(
+      seconds / 60
+    ) + 'm';
+
+
+  const statProvider =
+    $('#stat-provider');
+
+  if (statProvider) {
+
+    statProvider.textContent =
+      telnyxDashboard
+        ?.provider
+        ?.connected
+        ? 'Connected'
+        : 'Not connected';
+  }
 }
 
 
@@ -619,6 +1416,7 @@ function renderSaved() {
     ($('#saved-search')?.value || '')
       .toLowerCase();
 
+
   const arr =
     saved.filter(x =>
       (
@@ -628,8 +1426,10 @@ function renderSaved() {
         .includes(q)
     );
 
+
   $('#saved-list').innerHTML =
     arr.length
+
       ? arr.map(x => `
 
         <div class="saved-item">
@@ -697,7 +1497,9 @@ function renderSaved() {
           </div>
 
           <h3>
-            ${q ? 'No matches' : 'No saved numbers'}
+            ${q
+              ? 'No matches'
+              : 'No saved numbers'}
           </h3>
 
           <p>
@@ -808,6 +1610,7 @@ function renderRecents() {
   const arr =
     history.slice(0, 5);
 
+
   box.innerHTML =
     arr.length
 
@@ -885,6 +1688,12 @@ function renderTransactions() {
   const box =
     $('#transaction-list');
 
+
+  if (!box) {
+    return;
+  }
+
+
   if (!transactions.length) {
 
     box.innerHTML = `
@@ -900,8 +1709,8 @@ function renderTransactions() {
         </h3>
 
         <p>
-          Real provider billing will appear here
-          after billing is connected.
+          CallFlow transactions will appear here
+          when provider billing activity is recorded.
         </p>
 
       </div>
@@ -910,6 +1719,7 @@ function renderTransactions() {
 
     return;
   }
+
 
   box.innerHTML =
     transactions.map(x => `
@@ -938,7 +1748,8 @@ function renderTransactions() {
 
         <span>
           ${esc(
-            x.currency || 'USD'
+            x.currency ||
+            'USD'
           )}
         </span>
 
@@ -968,7 +1779,10 @@ function renderTransactions() {
 
 function loadSettings() {
 
-  if (!$('#workspace-name')) return;
+  if (!$('#workspace-name')) {
+    return;
+  }
+
 
   $('#workspace-name').value =
     settings.workspace;
@@ -984,14 +1798,25 @@ function loadSettings() {
 }
 
 
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
 function renderAll() {
 
   renderSaved();
+
   renderHistory();
+
   renderRecents();
+
   renderTransactions();
+
   updateStats();
+
   loadSettings();
+
+  renderTelnyxDashboard();
 }
 
 
@@ -1029,9 +1854,9 @@ $('#modal-backdrop').onclick =
       e.target.id ===
       'modal-backdrop'
     ) {
+
       closeModal();
     }
-
   };
 
 
@@ -1125,8 +1950,10 @@ async function addNumber(existing = null) {
 
   `);
 
+
   $('#m-cancel').onclick =
     closeModal;
+
 
   $('#m-save').onclick =
     async () => {
@@ -1136,6 +1963,7 @@ async function addNumber(existing = null) {
           .value
           .trim();
 
+
       const phone_number =
         normalize(
           $('#m-number')
@@ -1143,10 +1971,12 @@ async function addNumber(existing = null) {
             .trim()
         );
 
+
       const note =
         $('#m-note')
           .value
           .trim();
+
 
       if (!name || !phone_number) {
 
@@ -1156,38 +1986,49 @@ async function addNumber(existing = null) {
         );
       }
 
+
       try {
 
         if (existing) {
 
           const {
             error
-          } = await supabase
-            .from('saved_numbers')
-            .update({
-              name,
-              phone_number,
-              note
-            })
-            .eq('id', existing.id);
+          } =
+            await supabase
+              .from('saved_numbers')
+              .update({
+                name,
+                phone_number,
+                note
+              })
+              .eq(
+                'id',
+                existing.id
+              );
 
-          if (error) throw error;
+          if (error) {
+            throw error;
+          }
 
         } else {
 
           const {
             error
-          } = await supabase
-            .from('saved_numbers')
-            .insert({
-              user_id: user.id,
-              name,
-              phone_number,
-              note
-            });
+          } =
+            await supabase
+              .from('saved_numbers')
+              .insert({
+                user_id: user.id,
+                name,
+                phone_number,
+                note
+              });
 
-          if (error) throw error;
+          if (error) {
+            throw error;
+          }
         }
+
 
         await loadSaved();
 
@@ -1195,12 +2036,14 @@ async function addNumber(existing = null) {
 
         renderAll();
 
+
         toast(
           existing
             ? 'Number updated'
             : 'Number saved',
           'success'
         );
+
 
       } catch (err) {
 
@@ -1215,7 +2058,8 @@ async function addNumber(existing = null) {
 
 
 $('#add-number-btn').onclick =
-  () => addNumber();
+  () =>
+    addNumber();
 
 
 $('#save-from-dialer').onclick =
@@ -1226,6 +2070,7 @@ $('#save-from-dialer').onclick =
         $('#number-input').value
       )
     ) {
+
       return toast(
         'Enter a number first',
         'warn'
@@ -1243,8 +2088,8 @@ $('#saved-search').oninput =
 $('#clear-number').onclick =
   () => {
 
-    $('#number-input').value = '';
-
+    $('#number-input').value =
+      '';
   };
 
 
@@ -1252,11 +2097,9 @@ $('#backspace').onclick =
   () => {
 
     $('#number-input').value =
-      $('#number-input').value.slice(
-        0,
-        -1
-      );
-
+      $('#number-input')
+        .value
+        .slice(0, -1);
   };
 
 
@@ -1269,7 +2112,6 @@ $$('.dial-keypad button')
         b.dataset.key;
 
       $('#number-input').focus();
-
     };
 
   });
@@ -1287,21 +2129,26 @@ document.addEventListener(
         '#auth-gate.open'
       )
     ) {
+
       return;
     }
+
 
     if (
       /^[0-9*#]$/.test(e.key)
     ) {
 
       $('#number-input')
-        .value += e.key;
+        .value +=
+        e.key;
 
       return;
     }
 
+
     if (
-      e.key === 'Backspace'
+      e.key ===
+      'Backspace'
     ) {
 
       $('#number-input')
@@ -1311,12 +2158,14 @@ document.addEventListener(
           .slice(0, -1);
     }
 
+
     if (
-      e.key === 'Escape'
+      e.key ===
+      'Escape'
     ) {
 
-      $('#number-input').value = '';
-
+      $('#number-input').value =
+        '';
     }
 
   }
@@ -1329,7 +2178,9 @@ document.addEventListener(
 
 async function startDemoCall(number) {
 
-  number = normalize(number);
+  number =
+    normalize(number);
+
 
   if (!number) {
 
@@ -1338,6 +2189,7 @@ async function startDemoCall(number) {
       'warn'
     );
   }
+
 
   if (!user) {
 
@@ -1398,8 +2250,11 @@ async function startDemoCall(number) {
   `);
 
 
-  let callId = null;
-  let ended = false;
+  let callId =
+    null;
+
+  let ended =
+    false;
 
 
   try {
@@ -1408,7 +2263,8 @@ async function startDemoCall(number) {
       data: {
         session: currentSession
       }
-    } = await supabase.auth.getSession();
+    } =
+      await supabase.auth.getSession();
 
 
     if (!currentSession) {
@@ -1425,14 +2281,15 @@ async function startDemoCall(number) {
     const {
       data,
       error
-    } = await supabase.functions.invoke(
-      'make-call',
-      {
-        body: {
-          phone_number: number
+    } =
+      await supabase.functions.invoke(
+        'make-call',
+        {
+          body: {
+            phone_number: number
+          }
         }
-      }
-    );
+      );
 
 
     if (error) {
@@ -1460,7 +2317,6 @@ async function startDemoCall(number) {
 
       statusText.textContent =
         'Call request created. Waiting for provider connection...';
-
     }
 
 
@@ -1477,11 +2333,13 @@ async function startDemoCall(number) {
           ended ||
           !callId
         ) {
+
           return;
         }
 
 
-        ended = true;
+        ended =
+          true;
 
 
         const button =
@@ -1493,7 +2351,8 @@ async function startDemoCall(number) {
 
         if (button) {
 
-          button.disabled = true;
+          button.disabled =
+            true;
 
           button.textContent =
             'Ending...';
@@ -1504,7 +2363,6 @@ async function startDemoCall(number) {
 
           statusText.textContent =
             'Ending call...';
-
         }
 
 
@@ -1553,12 +2411,14 @@ async function startDemoCall(number) {
 
         } catch (err) {
 
-          ended = false;
+          ended =
+            false;
 
 
           if (button) {
 
-            button.disabled = false;
+            button.disabled =
+              false;
 
             button.textContent =
               'End call';
@@ -1589,6 +2449,7 @@ async function startDemoCall(number) {
       'make-call error:',
       err
     );
+
 
     closeModal();
 
@@ -1665,6 +2526,7 @@ document.addEventListener(
             b.dataset.edit
         );
 
+
       if (x) {
         addNumber(x);
       }
@@ -1686,6 +2548,7 @@ document.addEventListener(
           'Delete this saved number?'
         )
       ) {
+
         return;
       }
 
@@ -1694,13 +2557,14 @@ document.addEventListener(
 
         const {
           error
-        } = await supabase
-          .from('saved_numbers')
-          .delete()
-          .eq(
-            'id',
-            b.dataset.delete
-          );
+        } =
+          await supabase
+            .from('saved_numbers')
+            .delete()
+            .eq(
+              'id',
+              b.dataset.delete
+            );
 
 
         if (error) {
@@ -1711,6 +2575,7 @@ document.addEventListener(
         await loadSaved();
 
         renderAll();
+
 
         toast(
           'Number deleted'
@@ -1725,7 +2590,6 @@ document.addEventListener(
           'warn'
         );
       }
-
     }
 
   }
@@ -1749,6 +2613,7 @@ $('#clear-history').onclick =
         'Delete all call history?'
       )
     ) {
+
       return;
     }
 
@@ -1757,13 +2622,14 @@ $('#clear-history').onclick =
 
       const {
         error
-      } = await supabase
-        .from('calls')
-        .delete()
-        .eq(
-          'user_id',
-          user.id
-        );
+      } =
+        await supabase
+          .from('calls')
+          .delete()
+          .eq(
+            'user_id',
+            user.id
+          );
 
 
       if (error) {
@@ -1774,6 +2640,7 @@ $('#clear-history').onclick =
       await loadHistory();
 
       renderAll();
+
 
       toast(
         'History cleared'
@@ -1807,18 +2674,47 @@ $('#connect-provider').onclick =
       );
     }
 
-    const data =
-      await loadTelnyxDashboard();
 
-    if (data?.success) {
+    const button =
+      $('#connect-provider');
 
-      toast(
-        'Telnyx connected successfully',
-        'success'
-      );
 
+    if (button) {
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        'Refreshing…';
     }
 
+
+    try {
+
+      const data =
+        await loadTelnyxDashboard();
+
+
+      if (data?.success) {
+
+        toast(
+          'Telnyx data refreshed',
+          'success'
+        );
+
+      }
+
+    } finally {
+
+      if (button) {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          'Connect provider';
+      }
+    }
   };
 
 
@@ -1864,19 +2760,20 @@ $('#save-settings').onclick =
 
       const {
         error
-      } = await supabase
-        .from('profiles')
-        .update({
-          workspace_name:
-            settings.workspace,
+      } =
+        await supabase
+          .from('profiles')
+          .update({
+            workspace_name:
+              settings.workspace,
 
-          default_country_code:
-            settings.country
-        })
-        .eq(
-          'id',
-          user.id
-        );
+            default_country_code:
+              settings.country
+          })
+          .eq(
+            'id',
+            user.id
+          );
 
 
       if (error) {
@@ -1917,6 +2814,7 @@ $('#reset-data').onclick =
         'Delete all saved numbers and call history for this account?'
       )
     ) {
+
       return;
     }
 
@@ -1991,7 +2889,7 @@ $('#global-search').onclick =
 $('#help-btn').onclick =
   () =>
     toast(
-      'CallFlow is connected to Supabase. Provider calling is the next backend layer.'
+      'CallFlow is connected to Supabase. Telnyx balance, numbers and usage are now loaded through the backend.'
     );
 
 
@@ -2005,7 +2903,6 @@ $('#profile-btn').onclick =
     ) {
 
       await supabase.auth.signOut();
-
     }
 
   };
@@ -2069,8 +2966,10 @@ supabase.auth.onAuthStateChange(
 
     } else {
 
-      showAuth();
+      telnyxDashboard =
+        null;
 
+      showAuth();
     }
 
   }
