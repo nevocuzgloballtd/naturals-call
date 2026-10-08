@@ -19,10 +19,14 @@ const esc = (s) =>
 const normalize = (n) =>
   String(n || '').replace(/[^\d*+#]/g, '');
 
-const formatDuration = (s) =>
-  !s
-    ? '—'
-    : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const formatDuration = (s) => {
+  if (!s) return '—';
+
+  const minutes = Math.floor(s / 60);
+  const seconds = String(s % 60).padStart(2, '0');
+
+  return minutes + ':' + seconds;
+};
 
 const formatMoney = (value, currency = 'USD') => {
   const amount = Number(value ?? 0);
