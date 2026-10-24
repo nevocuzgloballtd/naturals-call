@@ -625,6 +625,7 @@ function renderTelnyxUsage() {
 
   const usage = telnyxDashboard?.usage;
   const summary = usage?.summary;
+  const tx = usage?.telnyx;
   const connected = Boolean(telnyxDashboard?.provider?.connected);
 
   if (!connected) {
@@ -648,23 +649,47 @@ function renderTelnyxUsage() {
   const attempted = Number(summary?.attempted ?? 0);
   const connectedCalls = Number(summary?.connected ?? 0);
   const cost = summary?.cost == null ? null : Number(summary.cost);
+  const currency = tx?.currency || 'USD';
 
   const start = usage?.period?.start;
   const end = usage?.period?.end;
   const usageError = usage?.error;
 
+  const productRows = (tx?.products || []).map(p => `
+
+    <div class="history-row">
+
+      <span>
+        <strong>${esc(p.product)}</strong>
+        ${p.error
+          ? `<br><small style="color:#9b3d3d">${esc(p.error)}</small>`
+          : ''}
+      </span>
+
+      <span>${p.error ? '—' : formatMoney(p.cost, p.currency || currency)}</span>
+
+      <span>${p.error ? '—' : formatNumber(p.attempted) + ' attempts'}</span>
+
+      <span>${p.error ? '—' : formatDuration(Math.round(p.billed_seconds)) + ' billed'}</span>
+
+      <span></span>
+
+    </div>
+
+  `).join('');
+
   panel.innerHTML = `
     <div class="panel-head">
       <div>
         <h3>Usage</h3>
-        <p>Telnyx voice usage for the current reporting window.</p>
+        <p>Month to date, straight from Telnyx.</p>
       </div>
     </div>
 
     <div class="history-summary">
 
       <div>
-        <span>Attempts</span>
+        <span>Calls placed</span>
         <strong>${formatNumber(attempted)}</strong>
       </div>
 
@@ -674,15 +699,28 @@ function renderTelnyxUsage() {
       </div>
 
       <div>
-        <span>Usage cost</span>
+        <span>Telnyx spend</span>
         <strong>
           ${cost == null || !Number.isFinite(cost)
             ? 'Not available yet'
-            : formatMoney(cost, 'USD')}
+            : formatMoney(cost, currency)}
         </strong>
       </div>
 
     </div>
+
+    ${productRows ? `
+      <div style="margin-top:16px">
+        <div class="table-head">
+          <span>Product</span>
+          <span>Cost</span>
+          <span>Attempts</span>
+          <span>Billed time</span>
+          <span></span>
+        </div>
+        ${productRows}
+      </div>
+    ` : ''}
 
     <div style="margin-top:14px;color:#7b8694;font-size:11px;line-height:1.6">
 
@@ -690,8 +728,12 @@ function renderTelnyxUsage() {
         Period: ${esc(formatDate(start))} — ${esc(formatDate(end))}
       </div>
 
+      <div>
+        Usage reports can lag a few minutes behind live activity.
+      </div>
+
       ${usageError
-        ? `<div style="margin-top:6px;color:#9b3d3d">Usage report: ${esc(usageError)}</div>`
+        ? `<div style="margin-top:6px;color:#9b3d3d">${esc(usageError)}</div>`
         : ''}
 
     </div>
