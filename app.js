@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { TelnyxRTC } from '@telnyx/webrtc';
+import { initSms } from './sms.js';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -84,6 +85,23 @@ let settings = {
   confirmClear: true,
   notifications: true
 };
+
+
+/* =========================================================
+   SMS MODULE (see sms.js)
+========================================================= */
+
+const sms = initSms({
+  supabase,
+  getUser: () => user,
+  getSaved: () => saved,
+  $,
+  esc,
+  toast,
+  openModal,
+  closeModal,
+  toE164: (n) => toE164(n)
+});
 
 
 /* =========================================================
@@ -283,6 +301,7 @@ function navigate(view) {
     dialer: 'Dialer',
     saved: 'Saved Numbers',
     history: 'Call History',
+    messages: 'Messages',
     billing: 'Billing',
     settings: 'Settings'
   };
@@ -695,12 +714,14 @@ async function loadAppData() {
       loadSaved(),
       loadHistory(),
       loadTransactions(),
-      loadTelnyxDashboard()
+      loadTelnyxDashboard(),
+      sms.load()
     ]);
 
     renderAll();
 
     subscribeCalls();
+    sms.subscribe();
 
     initPhone();
 
@@ -976,6 +997,7 @@ function renderAll() {
   updateStats();
   loadSettings();
   renderTelnyxDashboard();
+  sms.render();
 }
 
 
@@ -1128,6 +1150,12 @@ document.addEventListener('keydown', e => {
     return;
   }
 
+  // Don't hijack typing in text fields (e.g. the Messages composer)
+  const tag = (e.target?.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') {
+    return;
+  }
+
   if (/^[0-9*#]$/.test(e.key)) {
     $('#number-input').value += e.key;
     return;
@@ -1269,6 +1297,8 @@ function teardownPhone() {
     supabase.removeChannel(callsChannel);
     callsChannel = null;
   }
+
+  sms.teardown();
 }
 
 function subscribeCalls() {
