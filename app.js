@@ -1233,7 +1233,11 @@ function renderTelnyxUsage() {
         </span>
 
         <strong>
-          ${formatMoney(cost, 'USD')}
+         
+${cost == null || !Number.isFinite(cost)
+  ? 'Not available yet'
+  : formatMoney(cost, 'USD')}
+
         </strong>
       </div>
 
