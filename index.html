@@ -35,65 +35,41 @@
 
       <nav class="nav">
 
-        <button
-          class="nav-item active"
-          data-view="home"
-          type="button"
-        >
+        <button class="nav-item active" data-view="home" type="button">
           <span>⌂</span>
           Home
         </button>
 
-        <button
-          class="nav-item"
-          data-view="dialer"
-          type="button"
-        >
+        <button class="nav-item" data-view="dialer" type="button">
           <span>☎</span>
           Dialer
         </button>
 
-        <button
-          class="nav-item"
-          data-view="saved"
-          type="button"
-        >
+        <button class="nav-item" data-view="saved" type="button">
           <span>☆</span>
           Saved Numbers
         </button>
 
-        <button
-          class="nav-item"
-          data-view="history"
-          type="button"
-        >
+        <button class="nav-item" data-view="history" type="button">
           <span>◷</span>
           Call History
         </button>
 
-        <button
-          class="nav-item"
-          data-view="billing"
-          type="button"
-        >
+        <button class="nav-item" data-view="messages" type="button">
+          <span>✉</span>
+          Messages
+          <em id="sms-badge" class="sms-badge" hidden></em>
+        </button>
+
+        <button class="nav-item" data-view="billing" type="button">
           <span>◉</span>
           Billing
         </button>
 
-        <button
-          class="nav-item"
-          data-view="settings"
-          type="button"
-        >
+        <button class="nav-item" data-view="settings" type="button">
           <span>⚙</span>
           Settings
         </button>
-        
-        <button class="nav-item" data-view="messages" type="button">
-  <span>✉</span>
-  Messages
-  <em id="sms-badge" class="sms-badge" hidden></em>
-</button>
 
       </nav>
 
@@ -114,16 +90,9 @@
         </div>
 
 
-        <button
-          class="profile"
-          id="profile-btn"
-          type="button"
-        >
+        <button class="profile" id="profile-btn" type="button">
 
-          <div
-            class="avatar"
-            id="profile-avatar"
-          >
+          <div class="avatar" id="profile-avatar">
             U
           </div>
 
@@ -161,10 +130,7 @@
           ☰
         </button>
 
-        <div
-          class="crumb"
-          id="page-title"
-        >
+        <div class="crumb" id="page-title">
           Home
         </div>
 
@@ -201,10 +167,7 @@
              HOME
         ================================================== -->
 
-        <div
-          class="view active"
-          id="view-home"
-        >
+        <div class="view active" id="view-home">
 
           <div class="hero">
 
@@ -223,11 +186,7 @@
                 in one place.
               </p>
 
-              <button
-                class="primary"
-                data-view="dialer"
-                type="button"
-              >
+              <button class="primary" data-view="dialer" type="button">
                 Open dialer
                 <span>→</span>
               </button>
@@ -252,73 +211,29 @@
           <div class="stats">
 
             <div class="stat">
-
-              <span>
-                Calls today
-              </span>
-
-              <strong id="stat-calls">
-                0
-              </strong>
-
-              <small>
-                From local history
-              </small>
-
+              <span>Calls today</span>
+              <strong id="stat-calls">0</strong>
+              <small>From local history</small>
             </div>
 
-
             <div class="stat">
-
-              <span>
-                Minutes
-              </span>
-
-              <strong id="stat-minutes">
-                0m
-              </strong>
-
-              <small>
-                Completed calls
-              </small>
-
+              <span>Minutes</span>
+              <strong id="stat-minutes">0m</strong>
+              <small>Completed calls</small>
             </div>
 
-
             <div class="stat">
-
-              <span>
-                Saved numbers
-              </span>
-
-              <strong id="stat-saved">
-                0
-              </strong>
-
-              <small>
-                Stored in workspace
-              </small>
-
+              <span>Saved numbers</span>
+              <strong id="stat-saved">0</strong>
+              <small>Stored in workspace</small>
             </div>
 
-
             <div class="stat">
-
-              <span>
-                Provider
-              </span>
-
-              <strong
-                id="stat-provider"
-                class="small-value"
-              >
+              <span>Provider</span>
+              <strong id="stat-provider" class="small-value">
                 Not connected
               </strong>
-
-              <small>
-                Telnyx connection
-              </small>
-
+              <small>Telnyx connection</small>
             </div>
 
           </div>
@@ -327,15 +242,8 @@
           <div class="section-head">
 
             <div>
-
-              <h2>
-                Quick actions
-              </h2>
-
-              <p>
-                Jump straight into the work.
-              </p>
-
+              <h2>Quick actions</h2>
+              <p>Jump straight into the work.</p>
             </div>
 
           </div>
@@ -343,44 +251,25 @@
 
           <div class="quick-grid">
 
-            <button
-              class="quick-card"
-              data-view="dialer"
-              type="button"
-            >
+            <button class="quick-card" data-view="dialer" type="button">
               <b>☎</b>
               <strong>New call</strong>
               <span>Open the dialer</span>
             </button>
 
-
-            <button
-              class="quick-card"
-              data-view="saved"
-              type="button"
-            >
+            <button class="quick-card" data-view="saved" type="button">
               <b>☆</b>
               <strong>Saved numbers</strong>
               <span>Find a number quickly</span>
             </button>
 
-
-            <button
-              class="quick-card"
-              data-view="history"
-              type="button"
-            >
+            <button class="quick-card" data-view="history" type="button">
               <b>◷</b>
               <strong>Call history</strong>
               <span>Review recent calls</span>
             </button>
 
-
-            <button
-              class="quick-card"
-              data-view="settings"
-              type="button"
-            >
+            <button class="quick-card" data-view="settings" type="button">
               <b>⚙</b>
               <strong>Settings</strong>
               <span>Configure the workspace</span>
@@ -395,10 +284,7 @@
              DIALER
         ================================================== -->
 
-        <div
-          class="view"
-          id="view-dialer"
-        >
+        <div class="view" id="view-dialer">
 
           <div class="page-head">
 
@@ -565,21 +451,14 @@
                 </div>
 
 
-                <button
-                  class="text-btn"
-                  data-view="history"
-                  type="button"
-                >
+                <button class="text-btn" data-view="history" type="button">
                   View all
                 </button>
 
               </div>
 
 
-              <div
-                id="dialer-recents"
-                class="compact-list"
-              ></div>
+              <div id="dialer-recents" class="compact-list"></div>
 
             </div>
 
@@ -592,10 +471,7 @@
              SAVED NUMBERS
         ================================================== -->
 
-        <div
-          class="view"
-          id="view-saved"
-        >
+        <div class="view" id="view-saved">
 
           <div class="page-head row">
 
@@ -616,11 +492,7 @@
             </div>
 
 
-            <button
-              class="primary"
-              id="add-number-btn"
-              type="button"
-            >
+            <button class="primary" id="add-number-btn" type="button">
               ＋ Add number
             </button>
 
@@ -645,10 +517,7 @@
           </div>
 
 
-          <div
-            id="saved-list"
-            class="saved-grid"
-          ></div>
+          <div id="saved-list" class="saved-grid"></div>
 
         </div>
 
@@ -657,10 +526,7 @@
              CALL HISTORY
         ================================================== -->
 
-        <div
-          class="view"
-          id="view-history"
-        >
+        <div class="view" id="view-history">
 
           <div class="page-head row">
 
@@ -695,41 +561,18 @@
           <div class="history-summary">
 
             <div>
-
-              <span>
-                Total calls
-              </span>
-
-              <strong id="history-total">
-                0
-              </strong>
-
+              <span>Total calls</span>
+              <strong id="history-total">0</strong>
             </div>
 
-
             <div>
-
-              <span>
-                Completed
-              </span>
-
-              <strong id="history-completed">
-                0
-              </strong>
-
+              <span>Completed</span>
+              <strong id="history-completed">0</strong>
             </div>
 
-
             <div>
-
-              <span>
-                Minutes
-              </span>
-
-              <strong id="history-minutes">
-                0m
-              </strong>
-
+              <span>Minutes</span>
+              <strong id="history-minutes">0m</strong>
             </div>
 
           </div>
@@ -738,25 +581,11 @@
           <div class="panel table-panel">
 
             <div class="table-head">
-
-              <span>
-                Number
-              </span>
-
-              <span>
-                Direction
-              </span>
-
-              <span>
-                Date
-              </span>
-
-              <span>
-                Duration
-              </span>
-
+              <span>Number</span>
+              <span>Direction</span>
+              <span>Date</span>
+              <span>Duration</span>
               <span></span>
-
             </div>
 
 
@@ -768,13 +597,59 @@
 
 
         <!-- =================================================
+             MESSAGES
+        ================================================== -->
+
+        <div class="view" id="view-messages">
+
+          <div class="page-head row">
+
+            <div>
+              <p class="eyebrow">MESSAGES</p>
+              <h1>Text messages</h1>
+              <p>Send and receive SMS through your Telnyx number.</p>
+            </div>
+
+            <button class="primary" id="sms-new-btn" type="button">
+              ＋ New message
+            </button>
+
+          </div>
+
+          <div class="sms-layout">
+
+            <div class="sms-threads" id="sms-threads"></div>
+
+            <div class="sms-convo">
+
+              <div class="sms-head">
+                <strong id="sms-convo-title">Select a conversation</strong>
+              </div>
+
+              <div class="sms-messages" id="sms-messages"></div>
+
+              <form class="sms-form" id="sms-form" hidden>
+                <textarea
+                  id="sms-input"
+                  rows="1"
+                  maxlength="1600"
+                  placeholder="Type a message"
+                ></textarea>
+                <button class="primary" type="submit">Send</button>
+              </form>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =================================================
              BILLING
         ================================================== -->
 
-        <div
-          class="view"
-          id="view-billing"
-        >
+        <div class="view" id="view-billing">
 
           <div class="page-head">
 
@@ -813,21 +688,14 @@
             </div>
 
 
-            <button
-              class="secondary"
-              id="connect-provider"
-              type="button"
-            >
+            <button class="secondary" id="connect-provider" type="button">
               Refresh provider
             </button>
 
           </div>
 
 
-          <div
-            class="info-banner"
-            id="provider-banner"
-          >
+          <div class="info-banner" id="provider-banner">
 
             <b>
               Telnyx connection
@@ -861,10 +729,7 @@
             </div>
 
 
-            <div
-              id="provider-numbers"
-              class="transaction-list"
-            >
+            <div id="provider-numbers" class="transaction-list">
 
               <div class="empty">
 
@@ -909,10 +774,7 @@
             </div>
 
 
-            <div
-              id="transaction-list"
-              class="transaction-list"
-            ></div>
+            <div id="transaction-list" class="transaction-list"></div>
 
           </div>
 
@@ -923,10 +785,7 @@
              SETTINGS
         ================================================== -->
 
-        <div
-          class="view"
-          id="view-settings"
-        >
+        <div class="view" id="view-settings">
 
           <div class="page-head">
 
@@ -962,11 +821,7 @@
 
                 Workspace name
 
-                <input
-                  id="workspace-name"
-                  type="text"
-                  value="CallFlow"
-                >
+                <input id="workspace-name" type="text" value="CallFlow">
 
               </label>
 
@@ -975,20 +830,12 @@
 
                 Default country
 
-                <input
-                  id="default-country"
-                  type="text"
-                  value="+234"
-                >
+                <input id="default-country" type="text" value="+234">
 
               </label>
 
 
-              <button
-                class="primary"
-                id="save-settings"
-                type="button"
-              >
+              <button class="primary" id="save-settings" type="button">
                 Save changes
               </button>
 
@@ -1010,11 +857,7 @@
                   Confirm before clearing a number
                 </span>
 
-                <input
-                  type="checkbox"
-                  id="confirm-clear"
-                  checked
-                >
+                <input type="checkbox" id="confirm-clear" checked>
 
                 <i></i>
 
@@ -1027,11 +870,7 @@
                   Show call notifications
                 </span>
 
-                <input
-                  type="checkbox"
-                  id="call-notifications"
-                  checked
-                >
+                <input type="checkbox" id="call-notifications" checked>
 
                 <i></i>
 
@@ -1068,11 +907,7 @@
               </div>
 
 
-              <button
-                class="secondary"
-                id="api-info"
-                type="button"
-              >
+              <button class="secondary" id="api-info" type="button">
                 API architecture
               </button>
 
@@ -1120,10 +955,7 @@
        MODAL
   ====================================================== -->
 
-  <div
-    class="modal-backdrop"
-    id="modal-backdrop"
-  >
+  <div class="modal-backdrop" id="modal-backdrop">
 
     <div
       class="modal"
@@ -1152,10 +984,7 @@
        APP
   ====================================================== -->
 
-  <script
-    type="module"
-    src="/app.js"
-  ></script>
+  <script type="module" src="/app.js"></script>
 
 </body>
 </html>
