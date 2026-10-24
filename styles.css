@@ -197,3 +197,4 @@
 .sms-form{display:flex;gap:8px;padding:12px;border-top:1px solid #1c2531}
 .sms-form[hidden]{display:none}
 .sms-form textarea{flex:1;resize:none;background:#0b0f14;border:1px solid #253041;border-radius:12px;color:inherit;font:inherit;padding:10px 12px}
+   .auth-foot { display: none; }
