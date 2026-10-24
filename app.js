@@ -1168,9 +1168,9 @@ function renderTelnyxUsage() {
     );
 
   const cost =
-    Number(
-      summary?.cost ?? 0
-    );
+  summary?.cost == null
+    ? null
+    : Number(summary.cost);
 
 
   const start =
