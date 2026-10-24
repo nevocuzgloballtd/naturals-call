@@ -16,21 +16,17 @@ const esc = (s) =>
     "'": '&#039;'
   }[c]));
 
-const normalize = (n) =>
-  String(n || '').replace(/[^\d*+#]/g, '');
+const normalize = (n) => String(n || '').replace(/[^\d*+#]/g, '');
 
 const formatDuration = (s) => {
   if (!s) return '—';
-
   const minutes = Math.floor(s / 60);
   const seconds = String(s % 60).padStart(2, '0');
-
   return minutes + ':' + seconds;
 };
 
 const formatMoney = (value, currency = 'USD') => {
   const amount = Number(value ?? 0);
-
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -43,23 +39,14 @@ const formatMoney = (value, currency = 'USD') => {
   }
 };
 
-const formatNumber = (value) => {
-  const number = Number(value ?? 0);
-
-  return new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 2
-  }).format(number);
-};
+const formatNumber = (value) =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
+    .format(Number(value ?? 0));
 
 const formatDate = (value) => {
   if (!value) return '—';
-
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return '—';
-  }
-
+  if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleString();
 };
 
@@ -67,57 +54,20 @@ const formatDate = (value) => {
 if (!SUPABASE_URL || !SUPABASE_KEY) {
 
   document.body.innerHTML = `
-    <div
-      style="
-        min-height:100vh;
-        display:grid;
-        place-items:center;
-        background:#0b0f14;
-        color:#fff;
-        font-family:Inter,system-ui;
-        padding:24px
-      "
-    >
-      <div
-        style="
-          max-width:560px;
-          background:#121821;
-          border:1px solid #253041;
-          border-radius:18px;
-          padding:28px
-        "
-      >
-        <h1 style="margin-top:0">
-          CallFlow needs Supabase environment variables
-        </h1>
-
-        <p>
-          Set <b>VITE_SUPABASE_URL</b> and
-          <b>VITE_SUPABASE_ANON_KEY</b> in Vercel,
-          then redeploy.
-        </p>
-
-        <p>
-          Use the Supabase Project URL and the
-          publishable/anon key.
-          Never put the service_role key in frontend
-          environment variables.
-        </p>
+    <div style="min-height:100vh;display:grid;place-items:center;background:#0b0f14;color:#fff;font-family:Inter,system-ui;padding:24px">
+      <div style="max-width:560px;background:#121821;border:1px solid #253041;border-radius:18px;padding:28px">
+        <h1 style="margin-top:0">CallFlow needs Supabase environment variables</h1>
+        <p>Set <b>VITE_SUPABASE_URL</b> and <b>VITE_SUPABASE_ANON_KEY</b> in Vercel, then redeploy.</p>
+        <p>Use the Supabase Project URL and the publishable/anon key. Never put the service_role key in frontend environment variables.</p>
       </div>
     </div>
   `;
 
-  throw new Error(
-    'Missing Supabase environment variables'
-  );
+  throw new Error('Missing Supabase environment variables');
 }
 
 
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let session = null;
 let user = null;
@@ -127,7 +77,6 @@ let history = [];
 let transactions = [];
 let profile = null;
 let telnyxDashboard = null;
-
 
 let settings = {
   workspace: 'CallFlow',
@@ -142,26 +91,15 @@ let settings = {
 ========================================================= */
 
 function toast(msg, type = '') {
-
   const root = $('#toast-root');
-
   if (!root) return;
 
-  const e =
-    document.createElement('div');
-
-  e.className =
-    `toast ${type}`;
-
-  e.textContent =
-    msg;
-
+  const e = document.createElement('div');
+  e.className = `toast ${type}`;
+  e.textContent = msg;
   root.append(e);
 
-  setTimeout(
-    () => e.remove(),
-    2500
-  );
+  setTimeout(() => e.remove(), 2500);
 }
 
 
@@ -171,62 +109,36 @@ function toast(msg, type = '') {
 
 function showAuth() {
 
-  let el =
-    $('#auth-gate');
+  let el = $('#auth-gate');
 
   if (!el) {
 
-    el =
-      document.createElement('div');
-
-    el.id =
-      'auth-gate';
+    el = document.createElement('div');
+    el.id = 'auth-gate';
 
     el.innerHTML = `
       <div class="auth-card">
 
         <div class="brand">
-
-          <div class="brand-mark">
-            C
-          </div>
-
+          <div class="brand-mark">C</div>
           <div>
-            <strong>
-              CallFlow
-            </strong>
-
-            <span>
-              Calling workspace
-            </span>
+            <strong>CallFlow</strong>
+            <span>Calling workspace</span>
           </div>
-
         </div>
-
 
         <div class="auth-copy">
-
-          <p class="eyebrow">
-            SECURE WORKSPACE
-          </p>
-
-          <h1 id="auth-title">
-            Sign in to CallFlow
-          </h1>
-
+          <p class="eyebrow">SECURE WORKSPACE</p>
+          <h1 id="auth-title">Sign in to CallFlow</h1>
           <p id="auth-subtitle">
-            Use your account to access saved numbers,
-            history and billing.
+            Use your account to access saved numbers, history and billing.
           </p>
-
         </div>
-
 
         <form id="auth-form">
 
           <label>
             Email
-
             <input
               id="auth-email"
               type="email"
@@ -236,10 +148,8 @@ function showAuth() {
             >
           </label>
 
-
           <label>
             Password
-
             <input
               id="auth-password"
               type="password"
@@ -250,39 +160,20 @@ function showAuth() {
             >
           </label>
 
-
-          <button
-            class="primary"
-            id="auth-submit"
-            type="submit"
-          >
+          <button class="primary" id="auth-submit" type="submit">
             Sign in
           </button>
 
         </form>
 
-
         <div class="auth-foot">
-
-          <span id="auth-switch-copy">
-            New to CallFlow?
-          </span>
-
-          <button
-            class="text-btn"
-            id="auth-switch"
-            type="button"
-          >
+          <span id="auth-switch-copy">New to CallFlow?</span>
+          <button class="text-btn" id="auth-switch" type="button">
             Create account
           </button>
-
         </div>
 
-
-        <div
-          id="auth-message"
-          class="auth-message"
-        ></div>
+        <div id="auth-message" class="auth-message"></div>
 
       </div>
     `;
@@ -291,15 +182,12 @@ function showAuth() {
 
     let signup = false;
 
-
     $('#auth-switch').onclick = () => {
 
       signup = !signup;
 
       $('#auth-title').textContent =
-        signup
-          ? 'Create your CallFlow account'
-          : 'Sign in to CallFlow';
+        signup ? 'Create your CallFlow account' : 'Sign in to CallFlow';
 
       $('#auth-subtitle').textContent =
         signup
@@ -307,115 +195,64 @@ function showAuth() {
           : 'Use your account to access saved numbers, history and billing.';
 
       $('#auth-submit').textContent =
-        signup
-          ? 'Create account'
-          : 'Sign in';
+        signup ? 'Create account' : 'Sign in';
 
       $('#auth-switch-copy').textContent =
-        signup
-          ? 'Already have an account?'
-          : 'New to CallFlow?';
+        signup ? 'Already have an account?' : 'New to CallFlow?';
 
       $('#auth-switch').textContent =
-        signup
-          ? 'Sign in'
-          : 'Create account';
+        signup ? 'Sign in' : 'Create account';
 
-      $('#auth-message').textContent =
-        '';
+      $('#auth-message').textContent = '';
     };
 
+    $('#auth-form').onsubmit = async (e) => {
 
-    $('#auth-form').onsubmit =
-      async (e) => {
+      e.preventDefault();
 
-        e.preventDefault();
+      const email = $('#auth-email').value.trim();
+      const password = $('#auth-password').value;
+      const btn = $('#auth-submit');
 
-        const email =
-          $('#auth-email')
-            .value
-            .trim();
+      btn.disabled = true;
+      btn.textContent = signup ? 'Creating…' : 'Signing in…';
+      $('#auth-message').textContent = '';
 
-        const password =
-          $('#auth-password')
-            .value;
+      try {
 
-        const btn =
-          $('#auth-submit');
+        if (signup) {
 
-        btn.disabled =
-          true;
+          const { data, error } =
+            await supabase.auth.signUp({ email, password });
 
-        btn.textContent =
-          signup
-            ? 'Creating…'
-            : 'Signing in…';
+          if (error) throw error;
 
-        $('#auth-message').textContent =
-          '';
-
-        try {
-
-          if (signup) {
-
-            const {
-              data,
-              error
-            } =
-              await supabase.auth.signUp({
-                email,
-                password
-              });
-
-            if (error) {
-              throw error;
-            }
-
-            if (!data.session) {
-
-              $('#auth-message').textContent =
-                'Account created. Check your email to confirm the account, then sign in.';
-
-            } else {
-
-              toast(
-                'Account created',
-                'success'
-              );
-            }
-
+          if (!data.session) {
+            $('#auth-message').textContent =
+              'Account created. Check your email to confirm the account, then sign in.';
           } else {
-
-            const {
-              error
-            } =
-              await supabase.auth.signInWithPassword({
-                email,
-                password
-              });
-
-            if (error) {
-              throw error;
-            }
+            toast('Account created', 'success');
           }
 
-        } catch (err) {
+        } else {
 
-          $('#auth-message').textContent =
-            err.message ||
-            'Authentication failed.';
+          const { error } =
+            await supabase.auth.signInWithPassword({ email, password });
 
-        } finally {
-
-          btn.disabled =
-            false;
-
-          btn.textContent =
-            signup
-              ? 'Create account'
-              : 'Sign in';
+          if (error) throw error;
         }
-      };
+
+      } catch (err) {
+
+        $('#auth-message').textContent =
+          err.message || 'Authentication failed.';
+
+      } finally {
+
+        btn.disabled = false;
+        btn.textContent = signup ? 'Create account' : 'Sign in';
+      }
+    };
   }
 
   el.classList.add('open');
@@ -423,10 +260,7 @@ function showAuth() {
 
 
 function hideAuth() {
-
-  $('#auth-gate')
-    ?.classList
-    .remove('open');
+  $('#auth-gate')?.classList.remove('open');
 }
 
 
@@ -436,21 +270,13 @@ function hideAuth() {
 
 function navigate(view) {
 
-  $$('.view').forEach(v =>
-    v.classList.remove('active')
-  );
+  $$('.view').forEach(v => v.classList.remove('active'));
 
-  $(`#view-${view}`)
-    ?.classList
-    .add('active');
+  $(`#view-${view}`)?.classList.add('active');
 
   $$('.nav-item').forEach(n =>
-    n.classList.toggle(
-      'active',
-      n.dataset.view === view
-    )
+    n.classList.toggle('active', n.dataset.view === view)
   );
-
 
   const labels = {
     home: 'Home',
@@ -461,16 +287,9 @@ function navigate(view) {
     settings: 'Settings'
   };
 
+  $('#page-title').textContent = labels[view] || 'CallFlow';
 
-  $('#page-title').textContent =
-    labels[view] ||
-    'CallFlow';
-
-
-  $('#sidebar')
-    .classList
-    .remove('open');
-
+  $('#sidebar').classList.remove('open');
 
   renderAll();
 
@@ -479,18 +298,10 @@ function navigate(view) {
 
 
 $$('[data-view]').forEach(b =>
-  b.addEventListener(
-    'click',
-    () => navigate(b.dataset.view)
-  )
+  b.addEventListener('click', () => navigate(b.dataset.view))
 );
 
-
-$('#mobile-menu').onclick =
-  () =>
-    $('#sidebar')
-      .classList
-      .toggle('open');
+$('#mobile-menu').onclick = () => $('#sidebar').classList.toggle('open');
 
 
 /* =========================================================
@@ -499,30 +310,19 @@ $('#mobile-menu').onclick =
 
 async function loadProfile() {
 
-  const {
-    data,
-    error
-  } =
+  const { data, error } =
     await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  profile =
-    data;
+  profile = data;
 
-  settings.workspace =
-    data?.workspace_name ||
-    'CallFlow';
-
-  settings.country =
-    data?.default_country_code ||
-    '+234';
+  settings.workspace = data?.workspace_name || 'CallFlow';
+  settings.country = data?.default_country_code || '+234';
 
   updateProfileUI();
 }
@@ -530,62 +330,23 @@ async function loadProfile() {
 
 function updateProfileUI() {
 
-  const name =
-    profile?.full_name ||
-    'Workspace';
+  const name = profile?.full_name || 'Workspace';
 
+  $('#profile-name').textContent = name;
+  $('#profile-email').textContent = user?.email || 'Signed in';
+  $('#profile-avatar').textContent = (name[0] || 'U').toUpperCase();
 
-  $('#profile-name').textContent =
-    name;
+  const connected = Boolean(telnyxDashboard?.provider?.connected);
+  const providerText = connected ? 'Connected' : 'Not connected';
 
-  $('#profile-email').textContent =
-    user?.email ||
-    'Signed in';
+  const sidebarStatus = $('#sidebar-provider-status');
+  if (sidebarStatus) sidebarStatus.textContent = providerText;
 
-  $('#profile-avatar').textContent =
-    (name[0] || 'U')
-      .toUpperCase();
+  const oldProviderSmall = $('.provider-card small');
+  if (oldProviderSmall) oldProviderSmall.textContent = providerText;
 
-
-  const connected =
-    Boolean(
-      telnyxDashboard
-        ?.provider
-        ?.connected
-    );
-
-
-  const providerText =
-    connected
-      ? 'Connected'
-      : 'Not connected';
-
-
-  const sidebarStatus =
-    $('#sidebar-provider-status');
-
-  if (sidebarStatus) {
-    sidebarStatus.textContent =
-      providerText;
-  }
-
-
-  const oldProviderSmall =
-    $('.provider-card small');
-
-  if (oldProviderSmall) {
-    oldProviderSmall.textContent =
-      providerText;
-  }
-
-
-  const statProvider =
-    $('#stat-provider');
-
-  if (statProvider) {
-    statProvider.textContent =
-      providerText;
-  }
+  const statProvider = $('#stat-provider');
+  if (statProvider) statProvider.textContent = providerText;
 }
 
 
@@ -595,78 +356,45 @@ function updateProfileUI() {
 
 async function loadSaved() {
 
-  const {
-    data,
-    error
-  } =
+  const { data, error } =
     await supabase
       .from('saved_numbers')
       .select('*')
-      .order(
-        'created_at',
-        {
-          ascending: false
-        }
-      );
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  saved =
-    data || [];
+  saved = data || [];
 }
 
 
 async function loadHistory() {
 
-  const {
-    data,
-    error
-  } =
+  const { data, error } =
     await supabase
       .from('calls')
       .select('*')
-      .order(
-        'started_at',
-        {
-          ascending: false
-        }
-      )
+      .order('started_at', { ascending: false })
       .limit(200);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  history =
-    data || [];
+  history = data || [];
 }
 
 
 async function loadTransactions() {
 
-  const {
-    data,
-    error
-  } =
+  const { data, error } =
     await supabase
       .from('transactions')
       .select('*')
-      .order(
-        'created_at',
-        {
-          ascending: false
-        }
-      )
+      .order('created_at', { ascending: false })
       .limit(100);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  transactions =
-    data || [];
+  transactions = data || [];
 }
 
 
@@ -676,76 +404,38 @@ async function loadTransactions() {
 
 async function loadTelnyxDashboard() {
 
-  if (!user) {
-    return null;
-  }
-
+  if (!user) return null;
 
   try {
 
-    const {
-      data,
-      error
-    } =
-      await supabase.functions.invoke(
-        'telnyx-dashboard'
-      );
+    const { data, error } =
+      await supabase.functions.invoke('telnyx-dashboard');
 
-
-    if (error) {
-      throw error;
-    }
-
+    if (error) throw error;
 
     if (!data?.success) {
-
-      throw new Error(
-        data?.error ||
-        'Could not connect to Telnyx'
-      );
+      throw new Error(data?.error || 'Could not connect to Telnyx');
     }
 
+    telnyxDashboard = data;
 
-    telnyxDashboard =
-      data;
-
-
-    console.log(
-      'Telnyx dashboard:',
-      data
-    );
-
+    console.log('Telnyx dashboard:', data);
 
     updateProfileUI();
-
     renderTelnyxDashboard();
-
 
     return data;
 
   } catch (err) {
 
-    console.error(
-      'Telnyx dashboard error:',
-      err
-    );
+    console.error('Telnyx dashboard error:', err);
 
-
-    telnyxDashboard =
-      null;
-
+    telnyxDashboard = null;
 
     updateProfileUI();
-
     renderTelnyxDashboard();
 
-
-    toast(
-      err.message ||
-      'Could not load Telnyx data',
-      'warn'
-    );
-
+    toast(err.message || 'Could not load Telnyx data', 'warn');
 
     return null;
   }
@@ -758,23 +448,11 @@ async function loadTelnyxDashboard() {
 
 function getTelnyxBalance() {
 
-  const balance =
-    telnyxDashboard?.balance;
+  const balance = telnyxDashboard?.balance;
 
-  if (balance == null) {
-    return null;
-  }
-
-
-  if (typeof balance === 'number') {
-    return balance;
-  }
-
-
-  if (typeof balance === 'string') {
-    return Number(balance);
-  }
-
+  if (balance == null) return null;
+  if (typeof balance === 'number') return balance;
+  if (typeof balance === 'string') return Number(balance);
 
   return Number(
     balance.balance ??
@@ -788,19 +466,10 @@ function getTelnyxBalance() {
 
 function getTelnyxCurrency() {
 
-  const balance =
-    telnyxDashboard?.balance;
+  const balance = telnyxDashboard?.balance;
 
-  if (
-    balance &&
-    typeof balance === 'object'
-  ) {
-
-    return (
-      balance.currency ||
-      balance.currency_code ||
-      'USD'
-    );
+  if (balance && typeof balance === 'object') {
+    return balance.currency || balance.currency_code || 'USD';
   }
 
   return 'USD';
@@ -809,284 +478,122 @@ function getTelnyxCurrency() {
 
 function renderTelnyxDashboard() {
 
-  const data =
-    telnyxDashboard;
+  const data = telnyxDashboard;
+  const connected = Boolean(data?.provider?.connected);
 
-
-  const connected =
-    Boolean(
-      data?.provider?.connected
-    );
-
-
-  /* -------------------------------------------------------
-     BALANCE
-  ------------------------------------------------------- */
-
-  const balanceEl =
-    $('#provider-balance');
-
-
-  const statusEl =
-    $('#provider-status');
-
+  const balanceEl = $('#provider-balance');
+  const statusEl = $('#provider-status');
 
   if (balanceEl) {
-
     if (connected && data?.balance != null) {
-
-      const balance =
-        getTelnyxBalance();
-
-      const currency =
-        getTelnyxCurrency();
-
       balanceEl.textContent =
-        formatMoney(
-          balance,
-          currency
-        );
-
+        formatMoney(getTelnyxBalance(), getTelnyxCurrency());
     } else {
-
-      balanceEl.textContent =
-        '—';
+      balanceEl.textContent = '—';
     }
   }
-
 
   if (statusEl) {
-
-    statusEl.textContent =
-      connected
-        ? 'Telnyx connected'
-        : 'Not connected';
+    statusEl.textContent = connected ? 'Telnyx connected' : 'Not connected';
   }
 
-
-  /* -------------------------------------------------------
-     PROVIDER BANNER
-  ------------------------------------------------------- */
-
-  const banner =
-    $('#provider-banner');
-
+  const banner = $('#provider-banner');
 
   if (banner) {
-
     if (connected) {
-
       banner.innerHTML = `
-        <b>
-          Telnyx connected
-        </b>
-
+        <b>Telnyx connected</b>
         <span>
-          Live provider information is being
-          loaded securely through CallFlow's backend.
+          Live provider information is being loaded securely through CallFlow's backend.
         </span>
       `;
-
     } else {
-
       banner.innerHTML = `
-        <b>
-          Telnyx is not connected
-        </b>
-
+        <b>Telnyx is not connected</b>
         <span>
-          Connect the provider to load balance,
-          numbers and usage information.
+          Connect the provider to load balance, numbers and usage information.
         </span>
       `;
     }
   }
 
-
-  /* -------------------------------------------------------
-     PHONE NUMBERS
-  ------------------------------------------------------- */
-
   renderTelnyxNumbers();
-
-
-  /* -------------------------------------------------------
-     USAGE
-  ------------------------------------------------------- */
-
   renderTelnyxUsage();
 }
 
 
 function renderTelnyxNumbers() {
 
-  const box =
-    $('#provider-numbers');
+  const box = $('#provider-numbers');
+  if (!box) return;
 
-
-  if (!box) {
-    return;
-  }
-
-
-  const numbers =
-    telnyxDashboard?.numbers ||
-    [];
-
+  const numbers = telnyxDashboard?.numbers || [];
 
   if (!telnyxDashboard?.provider?.connected) {
-
     box.innerHTML = `
       <div class="empty">
-
-        <div class="empty-icon">
-          ☎
-        </div>
-
-        <h3>
-          Provider not connected
-        </h3>
-
-        <p>
-          Connect Telnyx to load your phone numbers.
-        </p>
-
+        <div class="empty-icon">☎</div>
+        <h3>Provider not connected</h3>
+        <p>Connect Telnyx to load your phone numbers.</p>
       </div>
     `;
-
     return;
   }
-
 
   if (!numbers.length) {
-
     box.innerHTML = `
       <div class="empty">
-
-        <div class="empty-icon">
-          ☎
-        </div>
-
-        <h3>
-          No Telnyx numbers yet
-        </h3>
-
+        <div class="empty-icon">☎</div>
+        <h3>No Telnyx numbers yet</h3>
         <p>
-          Your Telnyx phone numbers will appear here
-          after you purchase and assign one.
+          Your Telnyx phone numbers will appear here after you purchase and assign one.
         </p>
-
       </div>
     `;
-
     return;
   }
 
+  box.innerHTML = numbers.map(number => {
 
-  box.innerHTML =
-    numbers.map(number => {
+    const phone = number.phone_number || number.number || 'Unknown number';
+    const status = number.status || 'active';
+    const connection =
+      number.connection_name || number.connection_id || 'Telnyx';
 
-      const phone =
-        number.phone_number ||
-        number.number ||
-        'Unknown number';
+    return `
+      <div class="history-row">
+        <span>
+          <strong>${esc(phone)}</strong>
+          <br>
+          <small>${esc(connection)}</small>
+        </span>
+        <span>Telnyx</span>
+        <span>${esc(status)}</span>
+        <span>${number.reservations ? formatNumber(number.reservations) : '—'}</span>
+        <span></span>
+      </div>
+    `;
 
-      const status =
-        number.status ||
-        'active';
-
-      const connection =
-        number.connection_name ||
-        number.connection_id ||
-        'Telnyx';
-
-      return `
-        <div class="history-row">
-
-          <span>
-
-            <strong>
-              ${esc(phone)}
-            </strong>
-
-            <br>
-
-            <small>
-              ${esc(connection)}
-            </small>
-
-          </span>
-
-          <span>
-            Telnyx
-          </span>
-
-          <span>
-            ${esc(status)}
-          </span>
-
-          <span>
-            ${number.reservations
-              ? formatNumber(number.reservations)
-              : '—'}
-          </span>
-
-          <span></span>
-
-        </div>
-      `;
-
-    }).join('');
+  }).join('');
 }
 
 
-/* ---------------------------------------------------------
-   USAGE PANEL
---------------------------------------------------------- */
-
 function ensureUsagePanel() {
 
-  let panel =
-    $('#provider-usage-panel');
+  let panel = $('#provider-usage-panel');
+  if (panel) return panel;
 
+  const numbersBox = $('#provider-numbers');
+  if (!numbersBox) return null;
 
-  if (panel) {
-    return panel;
-  }
+  const numbersPanel = numbersBox.closest('.panel');
+  if (!numbersPanel) return null;
 
+  panel = document.createElement('div');
+  panel.id = 'provider-usage-panel';
+  panel.className = 'panel';
 
-  const numbersBox =
-    $('#provider-numbers');
-
-
-  if (!numbersBox) {
-    return null;
-  }
-
-
-  const numbersPanel =
-    numbersBox.closest('.panel');
-
-
-  if (!numbersPanel) {
-    return null;
-  }
-
-
-  panel =
-    document.createElement('div');
-
-  panel.id =
-    'provider-usage-panel';
-
-  panel.className =
-    'panel';
-
-  numbersPanel.insertAdjacentElement(
-    'afterend',
-    panel
-  );
-
+  numbersPanel.insertAdjacentElement('afterend', panel);
 
   return panel;
 }
@@ -1094,188 +601,79 @@ function ensureUsagePanel() {
 
 function renderTelnyxUsage() {
 
-  const panel =
-    ensureUsagePanel();
+  const panel = ensureUsagePanel();
+  if (!panel) return;
 
-
-  if (!panel) {
-    return;
-  }
-
-
-  const usage =
-    telnyxDashboard?.usage;
-
-
-  const summary =
-    usage?.summary;
-
-
-  const connected =
-    Boolean(
-      telnyxDashboard
-        ?.provider
-        ?.connected
-    );
-
+  const usage = telnyxDashboard?.usage;
+  const summary = usage?.summary;
+  const connected = Boolean(telnyxDashboard?.provider?.connected);
 
   if (!connected) {
-
     panel.innerHTML = `
       <div class="panel-head">
-
         <div>
-          <h3>
-            Usage
-          </h3>
-
-          <p>
-            Telnyx usage will appear here
-            when the provider is connected.
-          </p>
+          <h3>Usage</h3>
+          <p>Telnyx usage will appear here when the provider is connected.</p>
         </div>
-
       </div>
 
       <div class="empty">
-
-        <div class="empty-icon">
-          ◷
-        </div>
-
-        <h3>
-          Usage unavailable
-        </h3>
-
-        <p>
-          Connect Telnyx to load usage data.
-        </p>
-
+        <div class="empty-icon">◷</div>
+        <h3>Usage unavailable</h3>
+        <p>Connect Telnyx to load usage data.</p>
       </div>
     `;
-
     return;
   }
 
+  const attempted = Number(summary?.attempted ?? 0);
+  const connectedCalls = Number(summary?.connected ?? 0);
+  const cost = summary?.cost == null ? null : Number(summary.cost);
 
-  const attempted =
-    Number(
-      summary?.attempted ?? 0
-    );
-
-  const connectedCalls =
-    Number(
-      summary?.connected ?? 0
-    );
-
-  const cost =
-  summary?.cost == null
-    ? null
-    : Number(summary.cost);
-
-
-  const start =
-    usage?.period?.start;
-
-  const end =
-    usage?.period?.end;
-
-
-  const usageError =
-    usage?.error;
-
+  const start = usage?.period?.start;
+  const end = usage?.period?.end;
+  const usageError = usage?.error;
 
   panel.innerHTML = `
     <div class="panel-head">
-
       <div>
-
-        <h3>
-          Usage
-        </h3>
-
-        <p>
-          Telnyx voice usage for the current
-          reporting window.
-        </p>
-
+        <h3>Usage</h3>
+        <p>Telnyx voice usage for the current reporting window.</p>
       </div>
-
     </div>
-
 
     <div class="history-summary">
 
       <div>
-        <span>
-          Attempts
-        </span>
-
-        <strong>
-          ${formatNumber(attempted)}
-        </strong>
+        <span>Attempts</span>
+        <strong>${formatNumber(attempted)}</strong>
       </div>
 
-
       <div>
-        <span>
-          Connected
-        </span>
-
-        <strong>
-          ${formatNumber(connectedCalls)}
-        </strong>
+        <span>Connected</span>
+        <strong>${formatNumber(connectedCalls)}</strong>
       </div>
 
-
       <div>
-        <span>
-          Usage cost
-        </span>
-
+        <span>Usage cost</span>
         <strong>
-         
-${cost == null || !Number.isFinite(cost)
-  ? 'Not available yet'
-  : formatMoney(cost, 'USD')}
-
+          ${cost == null || !Number.isFinite(cost)
+            ? 'Not available yet'
+            : formatMoney(cost, 'USD')}
         </strong>
       </div>
 
     </div>
 
-
-    <div
-      style="
-        margin-top:14px;
-        color:#7b8694;
-        font-size:11px;
-        line-height:1.6
-      "
-    >
+    <div style="margin-top:14px;color:#7b8694;font-size:11px;line-height:1.6">
 
       <div>
-        Period:
-        ${esc(formatDate(start))}
-        —
-        ${esc(formatDate(end))}
+        Period: ${esc(formatDate(start))} — ${esc(formatDate(end))}
       </div>
 
-      ${
-        usageError
-          ? `
-            <div
-              style="
-                margin-top:6px;
-                color:#9b3d3d
-              "
-            >
-              Usage report:
-              ${esc(usageError)}
-            </div>
-          `
-          : ''
-      }
+      ${usageError
+        ? `<div style="margin-top:6px;color:#9b3d3d">Usage report: ${esc(usageError)}</div>`
+        : ''}
 
     </div>
   `;
@@ -1288,10 +686,7 @@ ${cost == null || !Number.isFinite(cost)
 
 async function loadAppData() {
 
-  if (!user) {
-    return;
-  }
-
+  if (!user) return;
 
   try {
 
@@ -1303,18 +698,17 @@ async function loadAppData() {
       loadTelnyxDashboard()
     ]);
 
-
     renderAll();
+
+    subscribeCalls();
+
+    initPhone();
 
   } catch (err) {
 
     console.error(err);
 
-    toast(
-      err.message ||
-      'Could not load workspace data',
-      'warn'
-    );
+    toast(err.message || 'Could not load workspace data', 'warn');
   }
 }
 
@@ -1325,91 +719,40 @@ async function loadAppData() {
 
 function updateStats() {
 
-  const today =
-    new Date();
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const d = today.getDate();
 
-  const y =
-    today.getFullYear();
-
-  const m =
-    today.getMonth();
-
-  const d =
-    today.getDate();
-
-
-  const todayCalls =
-    history.filter(x => {
-
-      const t =
-        new Date(
-          x.started_at ||
-          x.created_at
-        );
-
-      return (
-        t.getFullYear() === y &&
-        t.getMonth() === m &&
-        t.getDate() === d
-      );
-
-    });
-
-
-  const completed =
-    history.filter(
-      x =>
-        x.status ===
-        'completed'
+  const todayCalls = history.filter(x => {
+    const t = new Date(x.started_at || x.created_at);
+    return (
+      t.getFullYear() === y &&
+      t.getMonth() === m &&
+      t.getDate() === d
     );
+  });
 
+  const completed = history.filter(x => x.status === 'completed');
 
-  const seconds =
-    completed.reduce(
-      (a, x) =>
-        a +
-        Number(
-          x.duration_seconds || 0
-        ),
-      0
-    );
+  const seconds = completed.reduce(
+    (a, x) => a + Number(x.duration_seconds || 0),
+    0
+  );
 
+  $('#stat-calls').textContent = todayCalls.length;
+  $('#stat-minutes').textContent = Math.round(seconds / 60) + 'm';
+  $('#stat-saved').textContent = saved.length;
 
-  $('#stat-calls').textContent =
-    todayCalls.length;
+  $('#history-total').textContent = history.length;
+  $('#history-completed').textContent = completed.length;
+  $('#history-minutes').textContent = Math.round(seconds / 60) + 'm';
 
-  $('#stat-minutes').textContent =
-    Math.round(
-      seconds / 60
-    ) + 'm';
-
-  $('#stat-saved').textContent =
-    saved.length;
-
-
-  $('#history-total').textContent =
-    history.length;
-
-  $('#history-completed').textContent =
-    completed.length;
-
-  $('#history-minutes').textContent =
-    Math.round(
-      seconds / 60
-    ) + 'm';
-
-
-  const statProvider =
-    $('#stat-provider');
+  const statProvider = $('#stat-provider');
 
   if (statProvider) {
-
     statProvider.textContent =
-      telnyxDashboard
-        ?.provider
-        ?.connected
-        ? 'Connected'
-        : 'Not connected';
+      telnyxDashboard?.provider?.connected ? 'Connected' : 'Not connected';
   }
 }
 
@@ -1420,20 +763,13 @@ function updateStats() {
 
 function renderSaved() {
 
-  const q =
-    ($('#saved-search')?.value || '')
-      .toLowerCase();
+  const q = ($('#saved-search')?.value || '').toLowerCase();
 
-
-  const arr =
-    saved.filter(x =>
-      (
-        `${x.name} ${x.phone_number} ${x.note || ''}`
-      )
-        .toLowerCase()
-        .includes(q)
-    );
-
+  const arr = saved.filter(x =>
+    `${x.name} ${x.phone_number} ${x.note || ''}`
+      .toLowerCase()
+      .includes(q)
+  );
 
   $('#saved-list').innerHTML =
     arr.length
@@ -1443,51 +779,19 @@ function renderSaved() {
         <div class="saved-item">
 
           <div class="mini-avatar">
-            ${esc(
-              (x.name || '?')
-                .slice(0, 1)
-                .toUpperCase()
-            )}
+            ${esc((x.name || '?').slice(0, 1).toUpperCase())}
           </div>
 
           <div class="item-main">
-
-            <strong>
-              ${esc(x.name)}
-            </strong>
-
-            <span>
-              ${esc(x.phone_number)}
-            </span>
-
-            ${
-              x.note
-                ? `<span>${esc(x.note)}</span>`
-                : ''
-            }
-
+            <strong>${esc(x.name)}</strong>
+            <span>${esc(x.phone_number)}</span>
+            ${x.note ? `<span>${esc(x.note)}</span>` : ''}
           </div>
 
           <div class="item-actions">
-
-            <button
-              data-call="${esc(x.phone_number)}"
-            >
-              ☎
-            </button>
-
-            <button
-              data-edit="${x.id}"
-            >
-              Edit
-            </button>
-
-            <button
-              data-delete="${x.id}"
-            >
-              Delete
-            </button>
-
+            <button data-call="${esc(x.phone_number)}">☎</button>
+            <button data-edit="${x.id}">Edit</button>
+            <button data-delete="${x.id}">Delete</button>
           </div>
 
         </div>
@@ -1495,29 +799,14 @@ function renderSaved() {
       `).join('')
 
       : `
-        <div
-          class="panel empty"
-          style="grid-column:1/-1"
-        >
-
-          <div class="empty-icon">
-            ☆
-          </div>
-
-          <h3>
-            ${q
-              ? 'No matches'
-              : 'No saved numbers'}
-          </h3>
-
+        <div class="panel empty" style="grid-column:1/-1">
+          <div class="empty-icon">☆</div>
+          <h3>${q ? 'No matches' : 'No saved numbers'}</h3>
           <p>
-            ${
-              q
-                ? 'Try another search.'
-                : 'Add your first number to make repeat calls faster.'
-            }
+            ${q
+              ? 'Try another search.'
+              : 'Add your first number to make repeat calls faster.'}
           </p>
-
         </div>
       `;
 }
@@ -1537,70 +826,30 @@ function renderHistory() {
         <div class="history-row">
 
           <span>
-
-            <strong>
-              ${esc(
-                x.contact_name ||
-                'Unknown'
-              )}
-            </strong>
-
+            <strong>${esc(x.contact_name || 'Unknown')}</strong>
             <br>
-
-            <small>
-              ${esc(x.phone_number)}
-            </small>
-
+            <small>${esc(x.phone_number)}</small>
           </span>
+
+          <span>${esc(x.direction || 'outbound')}</span>
 
           <span>
-            ${esc(
-              x.direction ||
-              'outbound'
-            )}
+            ${new Date(x.started_at || x.created_at).toLocaleString()}
           </span>
 
-          <span>
-            ${new Date(
-              x.started_at ||
-              x.created_at
-            ).toLocaleString()}
-          </span>
+          <span>${formatDuration(x.duration_seconds || 0)}</span>
 
-          <span>
-            ${formatDuration(
-              x.duration_seconds || 0
-            )}
-          </span>
-
-          <button
-            data-redial="${esc(
-              x.phone_number
-            )}"
-          >
-            ☎
-          </button>
+          <button data-redial="${esc(x.phone_number)}">☎</button>
 
         </div>
 
       `).join('')
 
       : `
-
         <div class="empty">
-
-          <div class="empty-icon">
-            ◷
-          </div>
-
-          <h3>
-            No calls yet
-          </h3>
-
-          <p>
-            Your call history will appear here.
-          </p>
-
+          <div class="empty-icon">◷</div>
+          <h3>No calls yet</h3>
+          <p>Your call history will appear here.</p>
         </div>
       `;
 }
@@ -1612,12 +861,8 @@ function renderHistory() {
 
 function renderRecents() {
 
-  const box =
-    $('#dialer-recents');
-
-  const arr =
-    history.slice(0, 5);
-
+  const box = $('#dialer-recents');
+  const arr = history.slice(0, 5);
 
   box.innerHTML =
     arr.length
@@ -1628,37 +873,18 @@ function renderRecents() {
 
           <div class="mini-avatar">
             ${esc(
-              (
-                x.contact_name ||
-                x.phone_number ||
-                '?'
-              )
+              (x.contact_name || x.phone_number || '?')
                 .slice(0, 1)
                 .toUpperCase()
             )}
           </div>
 
           <div class="item-main">
-
-            <strong>
-              ${esc(
-                x.contact_name ||
-                'Unknown'
-              )}
-            </strong>
-
-            <span>
-              ${esc(x.phone_number)}
-            </span>
-
+            <strong>${esc(x.contact_name || 'Unknown')}</strong>
+            <span>${esc(x.phone_number)}</span>
           </div>
 
-          <button
-            class="round-call"
-            data-redial="${esc(
-              x.phone_number
-            )}"
-          >
+          <button class="round-call" data-redial="${esc(x.phone_number)}">
             ☎
           </button>
 
@@ -1667,21 +893,10 @@ function renderRecents() {
       `).join('')
 
       : `
-
         <div class="empty">
-
-          <div class="empty-icon">
-            ◷
-          </div>
-
-          <h3>
-            No recent calls
-          </h3>
-
-          <p>
-            Your call history will appear here.
-          </p>
-
+          <div class="empty-icon">◷</div>
+          <h3>No recent calls</h3>
+          <p>Your call history will appear here.</p>
         </div>
       `;
 }
@@ -1693,91 +908,43 @@ function renderRecents() {
 
 function renderTransactions() {
 
-  const box =
-    $('#transaction-list');
-
-
-  if (!box) {
-    return;
-  }
-
+  const box = $('#transaction-list');
+  if (!box) return;
 
   if (!transactions.length) {
-
     box.innerHTML = `
-
       <div class="empty">
-
-        <div class="empty-icon">
-          ◉
-        </div>
-
-        <h3>
-          No transactions yet
-        </h3>
-
+        <div class="empty-icon">◉</div>
+        <h3>No transactions yet</h3>
         <p>
-          CallFlow transactions will appear here
-          when provider billing activity is recorded.
+          CallFlow transactions will appear here when provider billing activity is recorded.
         </p>
-
       </div>
-
     `;
-
     return;
   }
 
+  box.innerHTML = transactions.map(x => `
 
-  box.innerHTML =
-    transactions.map(x => `
+    <div class="history-row">
 
-      <div class="history-row">
+      <span>
+        <strong>${esc(x.transaction_type)}</strong>
+        <br>
+        <small>${esc(x.description || x.provider || '')}</small>
+      </span>
 
-        <span>
+      <span>${esc(x.currency || 'USD')}</span>
 
-          <strong>
-            ${esc(
-              x.transaction_type
-            )}
-          </strong>
+      <span>${new Date(x.created_at).toLocaleString()}</span>
 
-          <br>
+      <span>${Number(x.amount || 0).toFixed(2)}</span>
 
-          <small>
-            ${esc(
-              x.description ||
-              x.provider ||
-              ''
-            )}
-          </small>
+      <span></span>
 
-        </span>
+    </div>
 
-        <span>
-          ${esc(
-            x.currency ||
-            'USD'
-          )}
-        </span>
-
-        <span>
-          ${new Date(
-            x.created_at
-          ).toLocaleString()}
-        </span>
-
-        <span>
-          ${Number(
-            x.amount || 0
-          ).toFixed(2)}
-        </span>
-
-        <span></span>
-
-      </div>
-
-    `).join('');
+  `).join('');
 }
 
 
@@ -1787,22 +954,12 @@ function renderTransactions() {
 
 function loadSettings() {
 
-  if (!$('#workspace-name')) {
-    return;
-  }
+  if (!$('#workspace-name')) return;
 
-
-  $('#workspace-name').value =
-    settings.workspace;
-
-  $('#default-country').value =
-    settings.country;
-
-  $('#confirm-clear').checked =
-    settings.confirmClear;
-
-  $('#call-notifications').checked =
-    settings.notifications;
+  $('#workspace-name').value = settings.workspace;
+  $('#default-country').value = settings.country;
+  $('#confirm-clear').checked = settings.confirmClear;
+  $('#call-notifications').checked = settings.notifications;
 }
 
 
@@ -1813,17 +970,11 @@ function loadSettings() {
 function renderAll() {
 
   renderSaved();
-
   renderHistory();
-
   renderRecents();
-
   renderTransactions();
-
   updateStats();
-
   loadSettings();
-
   renderTelnyxDashboard();
 }
 
@@ -1833,39 +984,21 @@ function renderAll() {
 ========================================================= */
 
 function openModal(html) {
-
-  $('#modal-content').innerHTML =
-    html;
-
-  $('#modal-backdrop')
-    .classList
-    .add('open');
+  $('#modal-content').innerHTML = html;
+  $('#modal-backdrop').classList.add('open');
 }
 
 
 function closeModal() {
-
-  $('#modal-backdrop')
-    .classList
-    .remove('open');
+  $('#modal-backdrop').classList.remove('open');
 }
 
 
-$('#modal-close').onclick =
-  closeModal;
+$('#modal-close').onclick = closeModal;
 
-
-$('#modal-backdrop').onclick =
-  e => {
-
-    if (
-      e.target.id ===
-      'modal-backdrop'
-    ) {
-
-      closeModal();
-    }
-  };
+$('#modal-backdrop').onclick = e => {
+  if (e.target.id === 'modal-backdrop') closeModal();
+};
 
 
 /* =========================================================
@@ -1876,1044 +1009,734 @@ async function addNumber(existing = null) {
 
   openModal(`
 
-    <h2>
-      ${existing
-        ? 'Edit saved number'
-        : 'Save number'}
-    </h2>
+    <h2>${existing ? 'Edit saved number' : 'Save number'}</h2>
 
-    <p>
-      Keep the number available
-      for one-tap calling.
-    </p>
+    <p>Keep the number available for one-tap calling.</p>
 
     <div class="form-row">
-
-      <label>
-        Name
-      </label>
-
-      <input
-        id="m-name"
-        value="${esc(
-          existing?.name || ''
-        )}"
-      >
-
+      <label>Name</label>
+      <input id="m-name" value="${esc(existing?.name || '')}">
     </div>
 
     <div class="form-row">
-
-      <label>
-        Phone number
-      </label>
-
+      <label>Phone number</label>
       <input
         id="m-number"
         inputmode="tel"
-        value="${esc(
-          existing?.phone_number ||
-          $('#number-input').value
-        )}"
+        value="${esc(existing?.phone_number || $('#number-input').value)}"
       >
-
     </div>
 
     <div class="form-row">
-
-      <label>
-        Note (optional)
-      </label>
-
-      <textarea
-        id="m-note"
-        rows="3"
-      >${esc(
-        existing?.note || ''
-      )}</textarea>
-
+      <label>Note (optional)</label>
+      <textarea id="m-note" rows="3">${esc(existing?.note || '')}</textarea>
     </div>
 
     <div class="form-actions">
-
-      <button
-        class="secondary"
-        id="m-cancel"
-      >
-        Cancel
+      <button class="secondary" id="m-cancel">Cancel</button>
+      <button class="primary" id="m-save">
+        ${existing ? 'Save changes' : 'Save number'}
       </button>
-
-      <button
-        class="primary"
-        id="m-save"
-      >
-        ${
-          existing
-            ? 'Save changes'
-            : 'Save number'
-        }
-      </button>
-
     </div>
 
   `);
 
+  $('#m-cancel').onclick = closeModal;
 
-  $('#m-cancel').onclick =
-    closeModal;
+  $('#m-save').onclick = async () => {
 
+    const name = $('#m-name').value.trim();
+    const phone_number = normalize($('#m-number').value.trim());
+    const note = $('#m-note').value.trim();
 
-  $('#m-save').onclick =
-    async () => {
+    if (!name || !phone_number) {
+      return toast('Name and phone number are required', 'warn');
+    }
 
-      const name =
-        $('#m-name')
-          .value
-          .trim();
+    try {
 
+      if (existing) {
 
-      const phone_number =
-        normalize(
-          $('#m-number')
-            .value
-            .trim()
-        );
+        const { error } =
+          await supabase
+            .from('saved_numbers')
+            .update({ name, phone_number, note })
+            .eq('id', existing.id);
 
+        if (error) throw error;
 
-      const note =
-        $('#m-note')
-          .value
-          .trim();
+      } else {
 
+        const { error } =
+          await supabase
+            .from('saved_numbers')
+            .insert({ user_id: user.id, name, phone_number, note });
 
-      if (!name || !phone_number) {
-
-        return toast(
-          'Name and phone number are required',
-          'warn'
-        );
+        if (error) throw error;
       }
 
+      await loadSaved();
 
-      try {
+      closeModal();
+      renderAll();
 
-        if (existing) {
+      toast(existing ? 'Number updated' : 'Number saved', 'success');
 
-          const {
-            error
-          } =
-            await supabase
-              .from('saved_numbers')
-              .update({
-                name,
-                phone_number,
-                note
-              })
-              .eq(
-                'id',
-                existing.id
-              );
+    } catch (err) {
 
-          if (error) {
-            throw error;
-          }
-
-        } else {
-
-          const {
-            error
-          } =
-            await supabase
-              .from('saved_numbers')
-              .insert({
-                user_id: user.id,
-                name,
-                phone_number,
-                note
-              });
-
-          if (error) {
-            throw error;
-          }
-        }
-
-
-        await loadSaved();
-
-        closeModal();
-
-        renderAll();
-
-
-        toast(
-          existing
-            ? 'Number updated'
-            : 'Number saved',
-          'success'
-        );
-
-
-      } catch (err) {
-
-        toast(
-          err.message ||
-          'Could not save number',
-          'warn'
-        );
-      }
-    };
+      toast(err.message || 'Could not save number', 'warn');
+    }
+  };
 }
 
 
-$('#add-number-btn').onclick =
-  () =>
-    addNumber();
+$('#add-number-btn').onclick = () => addNumber();
 
+$('#save-from-dialer').onclick = () => {
 
-$('#save-from-dialer').onclick =
-  () => {
-
-    if (
-      !normalize(
-        $('#number-input').value
-      )
-    ) {
-
-      return toast(
-        'Enter a number first',
-        'warn'
-      );
-    }
-
-    addNumber();
-  };
-
-
-$('#saved-search').oninput =
-  renderSaved;
-
-
-$('#clear-number').onclick =
-  () => {
-
-    $('#number-input').value =
-      '';
-  };
-
-
-$('#backspace').onclick =
-  () => {
-
-    $('#number-input').value =
-      $('#number-input')
-        .value
-        .slice(0, -1);
-  };
-
-
-$$('.dial-keypad button')
-  .forEach(b => {
-
-    b.onclick = () => {
-
-      $('#number-input').value +=
-        b.dataset.key;
-
-      $('#number-input').focus();
-    };
-
-  });
-
-
-document.addEventListener(
-  'keydown',
-  e => {
-
-    if (
-      document.querySelector(
-        '.modal-backdrop.open'
-      ) ||
-      document.querySelector(
-        '#auth-gate.open'
-      )
-    ) {
-
-      return;
-    }
-
-
-    if (
-      /^[0-9*#]$/.test(e.key)
-    ) {
-
-      $('#number-input')
-        .value +=
-        e.key;
-
-      return;
-    }
-
-
-    if (
-      e.key ===
-      'Backspace'
-    ) {
-
-      $('#number-input')
-        .value =
-        $('#number-input')
-          .value
-          .slice(0, -1);
-    }
-
-
-    if (
-      e.key ===
-      'Escape'
-    ) {
-
-      $('#number-input').value =
-        '';
-    }
-
+  if (!normalize($('#number-input').value)) {
+    return toast('Enter a number first', 'warn');
   }
-);
+
+  addNumber();
+};
+
+$('#saved-search').oninput = renderSaved;
+
+$('#clear-number').onclick = () => {
+  $('#number-input').value = '';
+};
+
+$('#backspace').onclick = () => {
+  $('#number-input').value = $('#number-input').value.slice(0, -1);
+};
+
+$$('.dial-keypad button').forEach(b => {
+  b.onclick = () => {
+    $('#number-input').value += b.dataset.key;
+    $('#number-input').focus();
+  };
+});
+
+
+document.addEventListener('keydown', e => {
+
+  if (
+    document.querySelector('.modal-backdrop.open') ||
+    document.querySelector('#auth-gate.open')
+  ) {
+    return;
+  }
+
+  if (/^[0-9*#]$/.test(e.key)) {
+    $('#number-input').value += e.key;
+    return;
+  }
+
+  if (e.key === 'Backspace') {
+    $('#number-input').value = $('#number-input').value.slice(0, -1);
+  }
+
+  if (e.key === 'Escape') {
+    $('#number-input').value = '';
+  }
+});
 
 
 /* =========================================================
-   REAL CALL FLOW
+   PHONE (Telnyx WebRTC): real audio calls, in and out
 ========================================================= */
 
-async function startDemoCall(number) {
+let rtc = null;
+let rtcReady = false;
+let rtcConnecting = null;
+let callerNumber = null;
+let activeCall = null;
+let activeRow = null;
+let callStartedAt = null;
+let callTimer = null;
+let reconnectTimer = null;
+let callsChannel = null;
 
-  number =
-    normalize(number);
+function toE164(raw) {
+  const cleaned = String(raw || '').replace(/[^\d+]/g, '');
+  if (!cleaned) return '';
 
+  const digits = cleaned.replace(/\D/g, '');
+  const cc = String(settings.country || '+234').replace(/[^\d+]/g, '');
+  let out;
 
-  if (!number) {
-
-    return toast(
-      'Enter a number first',
-      'warn'
-    );
+  if (cleaned.startsWith('+')) {
+    out = '+' + digits;
+  } else if (digits.startsWith('00')) {
+    out = '+' + digits.slice(2);
+  } else if (digits.startsWith('0')) {
+    out = cc + digits.slice(1);
+  } else if (digits.length >= 11) {
+    out = '+' + digits;
+  } else {
+    out = cc + digits;
   }
 
+  return /^\+[1-9]\d{7,14}$/.test(out) ? out : '';
+}
 
-  if (!user) {
+async function ensurePhone() {
+  if (rtc && rtcReady) return rtc;
+  if (rtcConnecting) return rtcConnecting;
 
-    return toast(
-      'Please sign in first',
-      'warn'
-    );
+  rtcConnecting = (async () => {
+    const { data, error } = await supabase.functions.invoke('telnyx-token');
+    if (error) throw error;
+    if (!data?.token) {
+      throw new Error(data?.error || 'Could not get a calling token');
+    }
+
+    callerNumber = data.caller_number;
+
+    const client = new TelnyxRTC({ login_token: data.token });
+    client.remoteElement = 'remote-audio';
+
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Phone connection timed out')),
+        15000
+      );
+
+      client.on('telnyx.ready', () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+
+      client.on('telnyx.error', (e) => {
+        clearTimeout(timeout);
+        reject(new Error(e?.error?.message || 'Phone connection error'));
+      });
+
+      client.connect();
+    });
+
+    client.on('telnyx.notification', onPhoneNotification);
+
+    client.on('telnyx.socket.close', () => {
+      rtcReady = false;
+      rtc = null;
+
+      // Reconnect quietly so inbound calls keep working.
+      if (user && !reconnectTimer) {
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          initPhone();
+        }, 5000);
+      }
+    });
+
+    rtc = client;
+    rtcReady = true;
+    return client;
+  })();
+
+  try {
+    return await rtcConnecting;
+  } finally {
+    rtcConnecting = null;
   }
+}
 
+async function initPhone() {
+  if (!user) return;
+  try {
+    await ensurePhone();
+  } catch (err) {
+    console.warn('Phone not ready:', err);
+  }
+}
 
+function teardownPhone() {
+  clearInterval(callTimer);
+  clearTimeout(reconnectTimer);
+  reconnectTimer = null;
+
+  try { activeCall?.hangup(); } catch {}
+  try { rtc?.disconnect(); } catch {}
+
+  rtc = null;
+  rtcReady = false;
+  activeCall = null;
+  activeRow = null;
+
+  if (callsChannel) {
+    supabase.removeChannel(callsChannel);
+    callsChannel = null;
+  }
+}
+
+function subscribeCalls() {
+  if (callsChannel || !user) return;
+
+  let t = null;
+
+  callsChannel = supabase
+    .channel('calls-live')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'calls',
+        filter: `user_id=eq.${user.id}`
+      },
+      () => {
+        clearTimeout(t);
+        t = setTimeout(async () => {
+          await loadHistory();
+          renderAll();
+        }, 300);
+      }
+    )
+    .subscribe();
+}
+
+function setCallStatus(text) {
+  const el = $('#call-status-text');
+  if (el) el.textContent = text;
+}
+
+function startCallTimer() {
+  callStartedAt = Date.now();
+  clearInterval(callTimer);
+
+  callTimer = setInterval(() => {
+    const el = $('#call-timer');
+    if (!el) return;
+
+    const s = Math.floor((Date.now() - callStartedAt) / 1000);
+    el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }, 500);
+}
+
+function showInCallModal(title, number, incoming = false) {
   openModal(`
-
-    <div
-      style="
-        text-align:center;
-        padding:12px
-      "
-    >
+    <div style="text-align:center;padding:12px">
 
       <div
         class="phone-orb"
-        style="
-          margin:0 auto 18px;
-          width:72px;
-          height:72px;
-          font-size:28px
-        "
-      >
-        ☎
-      </div>
+        style="margin:0 auto 18px;width:72px;height:72px;font-size:28px"
+      >☎</div>
 
-      <h2>
-        Calling ${esc(number)}
-      </h2>
+      <h2>${esc(title)}</h2>
+      <p><strong>${esc(number)}</strong></p>
 
       <p id="call-status-text">
-        Starting call...
+        ${incoming ? 'Incoming call…' : 'Connecting…'}
       </p>
 
-      <div
-        class="form-actions"
-        style="
-          justify-content:center
-        "
-      >
+      <p id="call-timer" style="font-size:22px;margin:8px 0"></p>
 
-        <button
-          class="secondary"
-          id="end-demo"
-        >
-          End call
+      <div class="form-actions" style="justify-content:center">
+
+        ${incoming
+          ? '<button class="primary" id="answer-call">Answer</button>'
+          : '<button class="secondary" id="mute-call">Mute</button>'}
+
+        <button class="secondary" id="end-call-btn">
+          ${incoming ? 'Decline' : 'End call'}
         </button>
 
       </div>
-
     </div>
-
   `);
 
+  $('#end-call-btn').onclick = () => {
+    try { activeCall?.hangup(); } catch (e) { console.error(e); }
+  };
 
-  let callId =
-    null;
+  const mute = $('#mute-call');
+  if (mute) {
+    let muted = false;
+    mute.onclick = () => {
+      muted = !muted;
+      try {
+        muted ? activeCall?.muteAudio() : activeCall?.unmuteAudio();
+      } catch (e) { console.error(e); }
+      mute.textContent = muted ? 'Unmute' : 'Mute';
+    };
+  }
 
-  let ended =
-    false;
+  const answer = $('#answer-call');
+  if (answer) {
+    answer.onclick = () => {
+      try { activeCall?.answer(); } catch (e) { console.error(e); }
+      answer.disabled = true;
+      setCallStatus('Connecting…');
+    };
+  }
+}
 
+async function saveProviderId(call) {
+  const id = call?.telnyxIDs?.telnyxCallControlId;
 
-  try {
+  if (!id || !activeRow || activeRow.provider_call_id === id) return;
 
-    const {
-      data: {
-        session: currentSession
-      }
-    } =
-      await supabase.auth.getSession();
+  activeRow.provider_call_id = id;
 
+  await supabase
+    .from('calls')
+    .update({ provider_call_id: id, status: 'ringing' })
+    .eq('id', activeRow.id);
+}
 
-    if (!currentSession) {
+async function finishOutboundRow(row) {
+  // The webhook is the source of truth for final status and duration.
+  // If it hasn't landed after a few seconds, close the row ourselves.
+  await new Promise(r => setTimeout(r, 4000));
 
-      closeModal();
+  const { data } = await supabase
+    .from('calls')
+    .select('status, answered_at')
+    .eq('id', row.id)
+    .single();
 
-      return toast(
-        'Your session has expired. Please sign in again.',
-        'warn'
-      );
-    }
+  if (
+    !data ||
+    ['completed', 'failed', 'cancelled', 'missed'].includes(data.status)
+  ) {
+    return;
+  }
 
+  const answered = data.answered_at ? new Date(data.answered_at).getTime() : null;
 
-    const {
-      data,
-      error
-    } =
-      await supabase.functions.invoke(
-        'make-call',
-        {
-          body: {
-            phone_number: number
-          }
-        }
-      );
+  await supabase
+    .from('calls')
+    .update({
+      status: answered ? 'completed' : 'cancelled',
+      ended_at: new Date().toISOString(),
+      duration_seconds: answered ? Math.floor((Date.now() - answered) / 1000) : 0
+    })
+    .eq('id', row.id);
+}
 
+function onPhoneNotification(n) {
+  if (n.type !== 'callUpdate' || !n.call) return;
 
-    if (error) {
-      throw error;
-    }
+  const call = n.call;
+  const state = call.state;
 
+  // Incoming call
+  if (
+    call.direction === 'inbound' &&
+    !activeCall &&
+    ['new', 'ringing', 'requesting'].includes(state)
+  ) {
+    activeCall = call;
 
-    if (!data?.call?.id) {
-
-      throw new Error(
-        'The backend did not return a call ID.'
-      );
-    }
-
-
-    callId =
-      data.call.id;
-
-
-    const statusText =
-      $('#call-status-text');
-
-
-    if (statusText) {
-
-      statusText.textContent =
-        'Call request created. Waiting for provider connection...';
-    }
-
-
-    toast(
-      'Call request created',
-      'success'
+    showInCallModal(
+      'Incoming call',
+      call.remoteCallerNumber ||
+        call.options?.remoteCallerNumber ||
+        'Unknown number',
+      true
     );
+    return;
+  }
 
+  if (call !== activeCall && call.id !== activeCall?.id) return;
 
-    $('#end-demo').onclick =
-      async () => {
+  saveProviderId(call);
 
-        if (
-          ended ||
-          !callId
-        ) {
+  if (['trying', 'requesting', 'early'].includes(state)) {
+    setCallStatus('Ringing…');
+  }
 
-          return;
-        }
+  if (state === 'active') {
+    setCallStatus('Connected');
+    startCallTimer();
 
+    $('#answer-call')?.remove();
 
-        ended =
-          true;
+    const endBtn = $('#end-call-btn');
+    if (endBtn) endBtn.textContent = 'End call';
 
+    if (activeRow) {
+      supabase
+        .from('calls')
+        .update({
+          status: 'answered',
+          answered_at: new Date().toISOString()
+        })
+        .eq('id', activeRow.id)
+        .then(() => {});
+    }
+  }
 
-        const button =
-          $('#end-demo');
+  if (state === 'hangup' || state === 'destroy') {
+    const row = activeRow;
 
-        const statusText =
-          $('#call-status-text');
-
-
-        if (button) {
-
-          button.disabled =
-            true;
-
-          button.textContent =
-            'Ending...';
-        }
-
-
-        if (statusText) {
-
-          statusText.textContent =
-            'Ending call...';
-        }
-
-
-        try {
-
-          const {
-            data: endData,
-            error: endError
-          } =
-            await supabase.functions.invoke(
-              'end-call',
-              {
-                body: {
-                  call_id: callId
-                }
-              }
-            );
-
-
-          if (endError) {
-            throw endError;
-          }
-
-
-          if (!endData?.success) {
-
-            throw new Error(
-              'The backend could not end the call.'
-            );
-          }
-
-
-          closeModal();
-
-
-          await loadHistory();
-
-          renderAll();
-
-
-          toast(
-            'Call ended and saved to history',
-            'success'
-          );
-
-
-        } catch (err) {
-
-          ended =
-            false;
-
-
-          if (button) {
-
-            button.disabled =
-              false;
-
-            button.textContent =
-              'End call';
-          }
-
-
-          if (statusText) {
-
-            statusText.textContent =
-              err.message ||
-              'Could not end call.';
-          }
-
-
-          toast(
-            err.message ||
-            'Could not end call',
-            'warn'
-          );
-        }
-
-      };
-
-
-  } catch (err) {
-
-    console.error(
-      'make-call error:',
-      err
-    );
-
+    clearInterval(callTimer);
+    activeCall = null;
+    activeRow = null;
 
     closeModal();
+    toast('Call ended', 'success');
 
+    if (row) {
+      finishOutboundRow(row).then(async () => {
+        await loadHistory();
+        renderAll();
+      });
+    } else {
+      setTimeout(async () => {
+        await loadHistory();
+        renderAll();
+      }, 1500);
+    }
+  }
+}
 
-    toast(
-      err.message ||
-      'Could not start the call',
-      'warn'
-    );
+async function startCall(input) {
+  if (!user) return toast('Please sign in first', 'warn');
+  if (activeCall) return toast('You are already on a call', 'warn');
+
+  const number = toE164(input);
+
+  if (!number) {
+    return toast('Enter a valid phone number (with country code)', 'warn');
+  }
+
+  showInCallModal('Calling', number);
+
+  try {
+    const client = await ensurePhone();
+
+    const { data: row, error } = await supabase
+      .from('calls')
+      .insert({
+        user_id: user.id,
+        phone_number: number,
+        direction: 'outbound',
+        status: 'initiated',
+        provider: 'telnyx',
+        started_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    activeRow = row;
+
+    activeCall = client.newCall({
+      destinationNumber: number,
+      callerNumber
+    });
+  } catch (err) {
+    console.error('startCall error:', err);
+
+    activeCall = null;
+    activeRow = null;
+
+    closeModal();
+    toast(err.message || 'Could not start the call', 'warn');
   }
 }
 
 
-$('#call-btn').onclick =
-  () =>
-    startDemoCall(
-      $('#number-input').value
-    );
+$('#call-btn').onclick = () => startCall($('#number-input').value);
 
 
 /* =========================================================
    SAVED / HISTORY ACTIONS
 ========================================================= */
 
-document.addEventListener(
-  'click',
-  async e => {
+document.addEventListener('click', async e => {
 
-    let b =
-      e.target.closest(
-        '[data-redial]'
-      );
+  let b = e.target.closest('[data-redial]');
 
-
-    if (b) {
-
-      $('#number-input').value =
-        b.dataset.redial;
-
-      navigate('dialer');
-
-      return;
-    }
-
-
-    b =
-      e.target.closest(
-        '[data-call]'
-      );
-
-
-    if (b) {
-
-      startDemoCall(
-        b.dataset.call
-      );
-
-      return;
-    }
-
-
-    b =
-      e.target.closest(
-        '[data-edit]'
-      );
-
-
-    if (b) {
-
-      const x =
-        saved.find(
-          a =>
-            a.id ===
-            b.dataset.edit
-        );
-
-
-      if (x) {
-        addNumber(x);
-      }
-
-      return;
-    }
-
-
-    b =
-      e.target.closest(
-        '[data-delete]'
-      );
-
-
-    if (b) {
-
-      if (
-        !confirm(
-          'Delete this saved number?'
-        )
-      ) {
-
-        return;
-      }
-
-
-      try {
-
-        const {
-          error
-        } =
-          await supabase
-            .from('saved_numbers')
-            .delete()
-            .eq(
-              'id',
-              b.dataset.delete
-            );
-
-
-        if (error) {
-          throw error;
-        }
-
-
-        await loadSaved();
-
-        renderAll();
-
-
-        toast(
-          'Number deleted'
-        );
-
-
-      } catch (err) {
-
-        toast(
-          err.message ||
-          'Could not delete number',
-          'warn'
-        );
-      }
-    }
-
+  if (b) {
+    $('#number-input').value = b.dataset.redial;
+    navigate('dialer');
+    return;
   }
-);
+
+  b = e.target.closest('[data-call]');
+
+  if (b) {
+    startCall(b.dataset.call);
+    return;
+  }
+
+  b = e.target.closest('[data-edit]');
+
+  if (b) {
+    const x = saved.find(a => a.id === b.dataset.edit);
+    if (x) addNumber(x);
+    return;
+  }
+
+  b = e.target.closest('[data-delete]');
+
+  if (b) {
+
+    if (!confirm('Delete this saved number?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('saved_numbers')
+        .delete()
+        .eq('id', b.dataset.delete);
+
+      if (error) throw error;
+
+      await loadSaved();
+      renderAll();
+      toast('Number deleted');
+
+    } catch (err) {
+      toast(err.message || 'Could not delete number', 'warn');
+    }
+  }
+});
 
 
 /* =========================================================
    CLEAR HISTORY
 ========================================================= */
 
-$('#clear-history').onclick =
-  async () => {
+$('#clear-history').onclick = async () => {
 
-    if (!history.length) {
-      return;
-    }
+  if (!history.length) return;
+  if (!confirm('Delete all call history?')) return;
 
+  try {
+    const { error } = await supabase
+      .from('calls')
+      .delete()
+      .eq('user_id', user.id);
 
-    if (
-      !confirm(
-        'Delete all call history?'
-      )
-    ) {
+    if (error) throw error;
 
-      return;
-    }
+    await loadHistory();
+    renderAll();
+    toast('History cleared');
 
-
-    try {
-
-      const {
-        error
-      } =
-        await supabase
-          .from('calls')
-          .delete()
-          .eq(
-            'user_id',
-            user.id
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      await loadHistory();
-
-      renderAll();
-
-
-      toast(
-        'History cleared'
-      );
-
-
-    } catch (err) {
-
-      toast(
-        err.message ||
-        'Could not clear history',
-        'warn'
-      );
-    }
-
-  };
+  } catch (err) {
+    toast(err.message || 'Could not clear history', 'warn');
+  }
+};
 
 
 /* =========================================================
    PROVIDER / API
 ========================================================= */
 
-$('#connect-provider').onclick =
-  async () => {
+$('#connect-provider').onclick = async () => {
 
-    if (!user) {
+  if (!user) return toast('Please sign in first', 'warn');
 
-      return toast(
-        'Please sign in first',
-        'warn'
-      );
-    }
+  const button = $('#connect-provider');
 
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Refreshing…';
+  }
 
-    const button =
-      $('#connect-provider');
-
-
+  try {
+    const data = await loadTelnyxDashboard();
+    if (data?.success) toast('Telnyx data refreshed', 'success');
+  } finally {
     if (button) {
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        'Refreshing…';
+      button.disabled = false;
+      button.textContent = 'Connect provider';
     }
+  }
+};
 
-
-    try {
-
-      const data =
-        await loadTelnyxDashboard();
-
-
-      if (data?.success) {
-
-        toast(
-          'Telnyx data refreshed',
-          'success'
-        );
-
-      }
-
-    } finally {
-
-      if (button) {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          'Connect provider';
-      }
-    }
-  };
-
-
-$('#api-info').onclick =
-  () =>
-    toast(
-      'CRM will call our API; the API will call the provider'
-    );
+$('#api-info').onclick = () =>
+  toast('CRM will call our API; the API will call the provider');
 
 
 /* =========================================================
    SETTINGS SAVE
 ========================================================= */
 
-$('#save-settings').onclick =
-  async () => {
+$('#save-settings').onclick = async () => {
 
-    settings.workspace =
-      $('#workspace-name')
-        .value
-        .trim() ||
-      'CallFlow';
+  settings.workspace = $('#workspace-name').value.trim() || 'CallFlow';
+  settings.country = $('#default-country').value.trim() || '+234';
+  settings.confirmClear = $('#confirm-clear').checked;
+  settings.notifications = $('#call-notifications').checked;
 
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        workspace_name: settings.workspace,
+        default_country_code: settings.country
+      })
+      .eq('id', user.id);
 
-    settings.country =
-      $('#default-country')
-        .value
-        .trim() ||
-      '+234';
+    if (error) throw error;
 
+    await loadProfile();
+    toast('Settings saved', 'success');
 
-    settings.confirmClear =
-      $('#confirm-clear')
-        .checked;
-
-
-    settings.notifications =
-      $('#call-notifications')
-        .checked;
-
-
-    try {
-
-      const {
-        error
-      } =
-        await supabase
-          .from('profiles')
-          .update({
-            workspace_name:
-              settings.workspace,
-
-            default_country_code:
-              settings.country
-          })
-          .eq(
-            'id',
-            user.id
-          );
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      await loadProfile();
-
-
-      toast(
-        'Settings saved',
-        'success'
-      );
-
-
-    } catch (err) {
-
-      toast(
-        err.message ||
-        'Could not save settings',
-        'warn'
-      );
-    }
-
-  };
+  } catch (err) {
+    toast(err.message || 'Could not save settings', 'warn');
+  }
+};
 
 
 /* =========================================================
    RESET DATA
 ========================================================= */
 
-$('#reset-data').onclick =
-  async () => {
+$('#reset-data').onclick = async () => {
 
-    if (
-      !confirm(
-        'Delete all saved numbers and call history for this account?'
-      )
-    ) {
+  if (!confirm('Delete all saved numbers and call history for this account?')) {
+    return;
+  }
 
-      return;
-    }
+  try {
+    const a = await supabase
+      .from('saved_numbers')
+      .delete()
+      .eq('user_id', user.id);
 
+    if (a.error) throw a.error;
 
-    try {
+    const b = await supabase
+      .from('calls')
+      .delete()
+      .eq('user_id', user.id);
 
-      const a =
-        await supabase
-          .from('saved_numbers')
-          .delete()
-          .eq(
-            'user_id',
-            user.id
-          );
+    if (b.error) throw b.error;
 
+    await Promise.all([loadSaved(), loadHistory()]);
+    renderAll();
+    toast('Account data cleared');
 
-      if (a.error) {
-        throw a.error;
-      }
-
-
-      const b =
-        await supabase
-          .from('calls')
-          .delete()
-          .eq(
-            'user_id',
-            user.id
-          );
-
-
-      if (b.error) {
-        throw b.error;
-      }
-
-
-      await Promise.all([
-        loadSaved(),
-        loadHistory()
-      ]);
-
-
-      renderAll();
-
-
-      toast(
-        'Account data cleared'
-      );
-
-
-    } catch (err) {
-
-      toast(
-        err.message ||
-        'Could not clear data',
-        'warn'
-      );
-    }
-
-  };
+  } catch (err) {
+    toast(err.message || 'Could not clear data', 'warn');
+  }
+};
 
 
 /* =========================================================
    HEADER ACTIONS
 ========================================================= */
 
-$('#global-search').onclick =
-  () =>
-    navigate('saved');
+$('#global-search').onclick = () => navigate('saved');
 
+$('#help-btn').onclick = () =>
+  toast(
+    'CallFlow is connected to Supabase. Telnyx balance, numbers and usage are now loaded through the backend.'
+  );
 
-$('#help-btn').onclick =
-  () =>
-    toast(
-      'CallFlow is connected to Supabase. Telnyx balance, numbers and usage are now loaded through the backend.'
-    );
-
-
-$('#profile-btn').onclick =
-  async () => {
-
-    if (
-      confirm(
-        `Sign out ${user?.email || 'of CallFlow'}?`
-      )
-    ) {
-
-      await supabase.auth.signOut();
-    }
-
-  };
+$('#profile-btn').onclick = async () => {
+  if (confirm(`Sign out ${user?.email || 'of CallFlow'}?`)) {
+    await supabase.auth.signOut();
+  }
+};
 
 
 /* =========================================================
@@ -2922,66 +1745,34 @@ $('#profile-btn').onclick =
 
 async function boot() {
 
-  const {
-    data
-  } =
-    await supabase.auth.getSession();
+  const { data } = await supabase.auth.getSession();
 
-
-  session =
-    data.session;
-
-
-  user =
-    session?.user ||
-    null;
-
+  session = data.session;
+  user = session?.user || null;
 
   if (!user) {
-
     showAuth();
-
     return;
   }
 
-
   hideAuth();
-
 
   await loadAppData();
 }
 
+supabase.auth.onAuthStateChange((_event, newSession) => {
 
-supabase.auth.onAuthStateChange(
-  (_event, newSession) => {
+  session = newSession;
+  user = newSession?.user || null;
 
-    session =
-      newSession;
-
-    user =
-      newSession?.user ||
-      null;
-
-
-    if (user) {
-
-      hideAuth();
-
-      setTimeout(
-        loadAppData,
-        0
-      );
-
-    } else {
-
-      telnyxDashboard =
-        null;
-
-      showAuth();
-    }
-
+  if (user) {
+    hideAuth();
+    setTimeout(loadAppData, 0);
+  } else {
+    telnyxDashboard = null;
+    teardownPhone();
+    showAuth();
   }
-);
-
+});
 
 boot();
